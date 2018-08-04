@@ -91,6 +91,10 @@ class Main extends PluginBase implements Listener{
                 $this->data['bounty'][$noob->getName()] = intval($args[2]);
                 $this->save();
                 $sender->sendMessage('Bounty Added !');
+                foreach($this->getServer()->getOnlinePlayers() as $player){
+                    $player->sendMessage(C::GOLD.'NEW BOUNTY: '.$noob->getName().' -> $'.$args[2]);
+                }
+                return true;
             default:
                 $sender->sendMessage(C::RED."Invalid Command, Try /bounty help");
                 break;
@@ -113,6 +117,9 @@ class Main extends PluginBase implements Listener{
                 $this->eco->addMoney($killer->getName(), $this->data["bounty"][$event->getPlayer()->getName()]);
                 unset($this->data["bounty"][$event->getPlayer()->getName()]);
                 $this->save();
+                foreach($this->getServer()->getOnlinePlayers() as $player){
+                    $player->sendMessage(C::GOLD.'Bounty for '.$event->getPlayer()->getName().' has been claimed by '.$killer->getName());
+                }
             }
         }
     }
