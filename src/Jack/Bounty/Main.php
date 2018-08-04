@@ -17,8 +17,6 @@ use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};
 
 
 class Main extends PluginBase implements Listener{
-		
-    $this->eco = null;
 
 	public function onEnable(){
         if (!is_dir($this->getDataFolder())) {
