@@ -1,0 +1,16 @@
+---
+name: Bounty
+author: Jackthehaxk21
+version: 1.0
+api:
+- 3.0.0
+- 3.1.2
+main: Jack\Bounty\Main
+
+commands:
+  bounty:
+    description: Bounty command
+    permission: true
+    usage: /bounty help
+    defualt: true
+...
