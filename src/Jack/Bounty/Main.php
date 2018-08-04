@@ -72,20 +72,20 @@ class Main extends PluginBase implements Listener{
                 $noob = $this->getServer()->getOfflinePlayer($args[1]);
 				if(!is_numeric($noob->getFirstPlayed())){
 					$sender->sendMessage(C::RED."Error > Player not found");
-					return false;
+					return true;
                 }
                 if(isset($this->data['bounty'][$noob->getName()])){
                     $sender->sendMessage(C::RED."That user already has a bounty");
-                    return false;
+                    return true;
                 }
                 $mon = $this->eco->myMoney($sender->getName());
                 if(is_nan(intval($args[2]))){
                     $sender->sendMessage(C::RED."/bounty new <playername> <AMOUNT>");
-                    return false;
+                    return true;
                 }
                 if(intval($args[2]) > $mon){
-                    $sender->sendMessage(C::RED."You placed a bounty of ".$args[2]." but you only have  $".str_val($mon));
-                    return false;
+                    $sender->sendMessage(C::RED."You placed a bounty of ".$args[2]." but you dont have that much, check by typing /mymoney");
+                    return true;
                 }
                 $this->eco->reduceMoney($sender->getName(), intval($args[2]));
                 $this->data['bounty'][$noob->getName()] = intval($args[2]);
@@ -104,8 +104,17 @@ class Main extends PluginBase implements Listener{
 		$this->config->save();
 	}
 
-    #public function onDeath(PlayerDeathEvent $event){
-
-    #}
+    public function onDeath(PlayerDeathEvent $event){
+        $cause = $event->getPlayer()->getLastDamageCause();
+        if ($cause instanceof EntityDamageByEntityEvent and $cause->getDamager() instanceof Player) {
+            $killer = $cause->getDamager();
+            if(isset($this->data["bounty"][$event->getPlayer()->getName()])){
+                $killer->sendMessage("Nice one you got $".$this->data["bounty"][$event->getPlayer()->getName()]." for killing ".$event->getPlayer()->getName()." who had a bounty on his/her head !");
+                $this->eco->addMoney($killer->getName(), $this->data["bounty"][$event->getPlayer()->getName()]);
+                unset($this->data["bounty"][$event->getPlayer()->getName()]);
+                $this->save();
+            }
+        }
+    }
 
 }
