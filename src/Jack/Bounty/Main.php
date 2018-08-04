@@ -24,7 +24,7 @@ class Main extends PluginBase implements Listener{
             //Use default, not PM.
         }
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
-        $this->data = new Config($this->plugin->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
+        $this->data = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->getLogger()->info("Bounty 1.0 Enabled");
         return;
