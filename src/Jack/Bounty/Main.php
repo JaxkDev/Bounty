@@ -18,7 +18,7 @@ use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};
 
 class Main extends PluginBase implements Listener{
 		
-       $this->eco = null;
+    $this->eco = null;
 
 	public function onEnable(){
         if (!is_dir($this->getDataFolder())) {
@@ -67,7 +67,7 @@ class Main extends PluginBase implements Listener{
                 break;
             case 'new':
                 if(!isset($args[1]) || !isset($args[2])){
-                    $sender->sendMessage(C::RED."/bounty new <playername> <amount>")
+                    $sender->sendMessage(C::RED."/bounty new <playername> <amount>");
                     break;
                 }
                 $noob = $this->getServer()->getOfflinePlayer($args[1]);
