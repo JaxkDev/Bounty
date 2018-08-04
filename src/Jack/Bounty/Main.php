@@ -24,7 +24,8 @@ class Main extends PluginBase implements Listener{
             //Use default, not PM.
         }
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
-        $this->data = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
+        $this->config = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
+        $this->data = $this->config->getAll();
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->getLogger()->info("Bounty 1.0 Enabled");
         return;
@@ -88,6 +89,7 @@ class Main extends PluginBase implements Listener{
                 }
                 $this->eco->reduceMoney($sender->getName(), intval($args[2]));
                 $this->data['bounty'][$noob->getName()] = intval($args[2]);
+                $this->save();
                 $sender->sendMessage('Bounty Added !');
             default:
                 $sender->sendMessage(C::RED."Invalid Command, Try /bounty help");
@@ -96,6 +98,11 @@ class Main extends PluginBase implements Listener{
 		return true;
         }
     }
+
+    public function save(){
+		$this->config->setAll($this->data);
+		$this->config->save();
+	}
 
     #public function onDeath(PlayerDeathEvent $event){
 
