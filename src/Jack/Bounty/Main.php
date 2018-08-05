@@ -50,6 +50,10 @@ class Main extends PluginBase implements Listener{
             return false;
 	    }
 	    switch($args[0]){
+           case 'credits':
+              $sender->sendMessage(C::GOLD."Credits:");
+              $sender->sendMessage(C::AQUA."Developer: ".C::RED."Jackthehack21");
+              return true;
 			case 'version':
 			case 'ver':
 				$sender->sendMessage(C::GOLD."=== DETAILS ===");
@@ -63,6 +67,7 @@ class Main extends PluginBase implements Listener{
                 $sender->sendMessage(C::GOLD."/bounty new <playername> <amount>");
                 $sender->sendMessage(C::GOLD."/bounty help");
                 $sender->sendMessage(C::GOLD."/bounty version");
+                $sender->sendMessage(C::GOLD."/bounty credits");
                 break;
             case 'new':
                 if(!isset($args[1]) || !isset($args[2])){
@@ -110,10 +115,8 @@ class Main extends PluginBase implements Listener{
 
     public function onDeath(PlayerDeathEvent $event){
         $cause = $event->getPlayer()->getLastDamageCause();
-        $event->getPlayer()->sendMessage("Death Event");
         if ($cause->getDamager() instanceof Player) {
             $killer = $cause->getDamager();
-            $killer->sendMessage("Past check");
             if(isset($this->data["bounty"][$event->getPlayer()->getName()])){
                 $killer->sendMessage("Nice one you got $".$this->data["bounty"][$event->getPlayer()->getName()]." for killing ".$event->getPlayer()->getName()." who had a bounty on his/her head !");
                 $this->eco->addMoney($killer->getName(), $this->data["bounty"][$event->getPlayer()->getName()]);
