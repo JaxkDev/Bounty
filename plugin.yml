@@ -10,8 +10,11 @@ softdepend: [FactionsPro, PurePerms]
 
 commands:
   bounty:
-    description: Bounty command
-    permission: true
+    description: "Bounty command"
+    permission: bounty
     usage: /bounty help
-    defualt: true
+
+permissions:
+  bounty:
+    description: "Allows usage of /bounty"
 ...
