@@ -32,7 +32,7 @@ class Main extends PluginBase implements Listener{
 	}
 	
 	public function onDisable(){
-        $this->getLogger()->info("Bounty 1.0 Disabled");
+        $this->getLogger()->info("Bounty 1.0.1 Disabled");
         return;
     }
 
@@ -58,9 +58,9 @@ class Main extends PluginBase implements Listener{
 			case 'ver':
 				$sender->sendMessage(C::GOLD."=== DETAILS ===");
 				$sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1001");
-				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0");
-				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0");
+				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1023");
+				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0.1");
+				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0.1");
 				break;
 		    case 'help':
                 $sender->sendMessage(C::GREEN."-- Bounty Help: --");
@@ -106,6 +106,21 @@ class Main extends PluginBase implements Listener{
 		}
 		return true;
         }
+    }
+
+    public function hasBounty(string $nick){
+        if(isset($this->data['bounty'][$nick])){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getBounty(string $nick){
+        if(!hasBounty($nick)){
+            return false;
+        }
+        return $this->data['bounty'][$nick];
     }
 
     public function save(){
