@@ -143,5 +143,9 @@ class Main extends PluginBase implements Listener{
             }
         }
     }
+	
+    public static function getInstance() : self{
+	return self::$instance;
+    }
 
 }
