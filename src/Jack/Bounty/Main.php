@@ -110,9 +110,9 @@ class Main extends PluginBase implements Listener{
 
     public function hasBounty(string $nick){
         if(isset($this->data['bounty'][$nick])){
-            return true;
+            return "Theres a bounty on you";
         } else {
-            return false;
+            return "";
         }
     }
 
