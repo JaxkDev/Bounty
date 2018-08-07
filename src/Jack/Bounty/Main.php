@@ -118,8 +118,8 @@ class Main extends PluginBase implements Listener{
     }
 
     public function getBounty(string $nick){
-        if(!hasBounty($nick)){
-            return false;
+        if(!isset($this->data['bounty'][$nick])){
+            return "";
         }
         return $this->data['bounty'][$nick];
     }
