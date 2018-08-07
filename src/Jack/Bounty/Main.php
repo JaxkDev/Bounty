@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Jack\Bounty;
 
 use pocketmine\plugin\PluginBase;
@@ -17,8 +17,9 @@ use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};
 
 
 class Main extends PluginBase implements Listener{
-
+    private static $instance;
 	public function onEnable(){
+		self::$instance = $this;
         if (!is_dir($this->getDataFolder())) {
             @mkdir($this->getDataFolder());
             //Use default, not PM.
