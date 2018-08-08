@@ -25,15 +25,19 @@ class Main extends PluginBase implements Listener{
             //Use default, not PM.
         }
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
+		if($this->eco == null){
+			$this->getLogger()->info('Plugin disabled, couldnt find EconomyAPI');
+			$this-getServer()->getPluginManager()->disablePlugin($this);
+		}
         $this->config = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
         $this->data = $this->config->getAll();
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getLogger()->info("Bounty 1.0 Enabled");
+        $this->getLogger()->info("Bounty 1.0.2 Enabled");
         return;
 	}
 	
 	public function onDisable(){
-        $this->getLogger()->info("Bounty 1.0.1 Disabled");
+        $this->getLogger()->info("Bounty 1.0.2 Disabled");
         return;
     }
 
@@ -59,9 +63,9 @@ class Main extends PluginBase implements Listener{
 			case 'ver':
 				$sender->sendMessage(C::GOLD."=== DETAILS ===");
 				$sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1023");
-				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0.1");
-				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0.1");
+				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1031");
+				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0.2");
+				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0.2");
 				break;
 		    case 'help':
                 $sender->sendMessage(C::GREEN."-- Bounty Help: --");
@@ -98,7 +102,7 @@ class Main extends PluginBase implements Listener{
                 $this->save();
                 $sender->sendMessage('Bounty Added !');
                 foreach($this->getServer()->getOnlinePlayers() as $player){
-                    $player->sendMessage(C::GOLD.'NEW BOUNTY: '.$noob->getName().' -> $'.$args[2]);
+                    $player->sendMessage(C::GOLD.'New Bounty Created: '.$noob->getName().' -> $'.$args[2]);
                 }
                 return true;
             default:
