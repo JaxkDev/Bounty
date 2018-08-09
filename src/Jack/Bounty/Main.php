@@ -24,6 +24,8 @@ class Main extends PluginBase implements Listener{
             @mkdir($this->getDataFolder());
             //Use default, not PM.
         }
+        $this->saveResource("config.yml");
+        $this->cfg = new Config($this->getDataFolder()."config.yml", Config::YAML, []);
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
 		if($this->eco == null){
 			$this->getLogger()->info('Plugin disabled, couldnt find EconomyAPI');
@@ -102,7 +104,7 @@ class Main extends PluginBase implements Listener{
                 $this->save();
                 $sender->sendMessage('Bounty Added !');
                 foreach($this->getServer()->getOnlinePlayers() as $player){
-                    $player->sendMessage(C::GOLD.'New Bounty Created: '.$noob->getName().' -> $'.$args[2]);
+                    $player->sendMessage(str_replace('{money}', $args[2],str_replace('{player}',$noob->getName(),$this->cfg->get('newBounty'))));
                 }
                 return true;
             default:

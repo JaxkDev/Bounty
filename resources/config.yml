@@ -1,0 +1,12 @@
+
+---
+
+enabled: true
+
+min: 10
+max: 1000
+
+newBounty: "{player} Has a bounty worth ${money}"
+claimedBounty: "Boounty for {player} worth ${money} was claimed by {killer}"
+
+...
