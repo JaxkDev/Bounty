@@ -24,8 +24,6 @@ class Main extends PluginBase implements Listener{
             @mkdir($this->getDataFolder());
             //Use default, not PM.
         }
-        $this->saveResource("config.yml");
-        $this->cfg = new Config($this->getDataFolder()."config.yml", Config::YAML, []);
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
 		if($this->eco == null){
 			$this->getLogger()->info('Plugin disabled, couldnt find EconomyAPI');
