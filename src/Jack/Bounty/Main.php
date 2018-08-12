@@ -55,10 +55,58 @@ class Main extends PluginBase implements Listener{
             return false;
 	    }
 	    switch($args[0]){
-           case 'credits':
-              $sender->sendMessage(C::GOLD."Credits:");
-              $sender->sendMessage(C::AQUA."Developer: ".C::RED."Jackthehack21");
-              return true;
+            case 'list':
+                if(!isset($args[1]) || $args[1] == '1'){
+                    if(count($this->data['bounty']) == 0){
+                        $sender->sendMessage(C::RED."Nobody has a bounty yet.");
+                        return true;
+                    } else {
+                        $tmp = null;
+                        if(count($this->data['bounty']) >= 5){
+                            $tmp = array_slice($this->data['bounty'], 0, 5, true);
+                        } else {
+                            $tmp = array_slice($this->data['bounty'], 0, count($this->data['bounty']), true);
+                        }
+                        $data = C::GREEN.'Page '.C::RED."1".C::GOLD."/".C::RED.ceil(count($this->data['bounty'])/5)."\n";
+                        foreach($tmp as $user => $price){
+                            $data = $data.C::GOLD.$user." -> ".C::GREEN."$".$price."\n";
+                        }
+                        $sender->sendMessage($data);
+                        return true;
+                    }
+                } else {
+                    if(is_nan(intval($args[1]))){
+                        $sender->sendMessage(C::RED."Not a valid page number.");
+                        return true;
+                    } else {
+                        if(count($this->data['bounty']) == 0){
+                            $sender->sendMessage(C::RED."Nobody has a bounty yet.");
+                            return true;
+                        } else {
+                            if(intval($args[1]) > ceil(count($this->data['bounty'])/5)){
+                                $sender->sendMessage(C::RED."Theres only ".ceil(count($this->data['bounty'])/5). " Pages.");
+                                return true;
+                            } else {
+                                $tmp = null;
+                                if(count($this->data['bounty']) >= intval($args[1])*5){
+                                    $tmp = array_slice($this->data['bounty'], (intval($args[1])*5)-5, (intval($args[1])*5), true);
+                                } else {
+                                    $tmp = array_slice($this->data['bounty'], (intval($args[1])*5)-5, count($this->data['bounty']), true);
+                                }
+                                $data = C::GREEN.'Page '.C::RED.$args[1].C::GOLD."/".C::RED.ceil(count($this->data['bounty'])/5)."\n";
+                                foreach($tmp as $user => $price){
+                                    $data = $data.C::GOLD.$user.C::RED." -> ".C::GREEN."$".$price."\n";
+                                }
+                                $sender->sendMessage($data);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            case 'credits':
+                $sender->sendMessage(C::GOLD."Credits:");
+                $sender->sendMessage(C::AQUA."Developer: ".C::RED."Jackthehack21");
+                return true;
 			case 'version':
 			case 'ver':
 				$sender->sendMessage(C::GOLD."=== DETAILS ===");
@@ -102,7 +150,7 @@ class Main extends PluginBase implements Listener{
                 $this->save();
                 $sender->sendMessage('Bounty Added !');
                 foreach($this->getServer()->getOnlinePlayers() as $player){
-                    $player->sendMessage(str_replace('{money}', $args[2],str_replace('{player}',$noob->getName(),$this->cfg->get('newBounty'))));
+                    $player->sendMessage(str_replace('{money}', $args[2],str_replace('{player}',$noob->getName(),C::AQUA."{player} Has a bount worth $"."{money}, Kill them to get the reward.")));
                 }
                 return true;
             default:
