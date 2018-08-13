@@ -118,6 +118,7 @@ class Main extends PluginBase implements Listener{
 		    case 'help':
                 $sender->sendMessage(C::GREEN."-- Bounty Help: --");
                 $sender->sendMessage(C::GOLD."/bounty new <playername> <amount>");
+                $sender->sendMessage(C::GOLD."/bounty list <page>");
                 $sender->sendMessage(C::GOLD."/bounty help");
                 $sender->sendMessage(C::GOLD."/bounty version");
                 $sender->sendMessage(C::GOLD."/bounty credits");
