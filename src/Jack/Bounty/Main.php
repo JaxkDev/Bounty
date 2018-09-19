@@ -183,9 +183,10 @@ class Main extends PluginBase implements Listener{
 	}
 
     public function onDeath(PlayerDeathEvent $event){
-        $cause = $event->getPlayer()->getLastDamageCause();
-        if ($cause->getModifier() instanceof Player) {
-            $killer = $cause->getModifier();
+       $ent = $event->getEntity();
+	$cause = $ent->getLastDamageCause();
+        if ($cause instanceof Player) {
+            $killer = $cause->getDamager();
             if(isset($this->data["bounty"][$event->getPlayer()->getName()])){
                 $killer->sendMessage("Nice one you got $".$this->data["bounty"][$event->getPlayer()->getName()]." for killing ".$event->getPlayer()->getName()." who had a bounty on his/her head !");
                 $this->eco->addMoney($killer->getName(), $this->data["bounty"][$event->getPlayer()->getName()]);
