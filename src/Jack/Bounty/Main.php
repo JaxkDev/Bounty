@@ -13,6 +13,7 @@ use pocketmine\OfflinePlayer;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};;
 
 
@@ -27,7 +28,8 @@ class Main extends PluginBase implements Listener{
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
 		if($this->eco == null){
 			$this->getLogger()->info('Plugin disabled, couldnt find EconomyAPI');
-			$this-getServer()->getPluginManager()->disablePlugin($this);
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+            return;
 		}
         $this->config = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
         $this->data = $this->config->getAll();
@@ -184,6 +186,8 @@ class Main extends PluginBase implements Listener{
 
     public function onDeath(PlayerDeathEvent $event){
         $cause = $event->getEntity()->getLastDamageCause(); // Thanks IZeoGamer !
+        if ($cause->getCause() != 1) return; //not killed by entity
+        if (!$cause instanceof EntityDamageByEntityEvent) return; //double check
         if ($cause->getDamager() instanceof Player) {
             $killer = $cause->getDamager();
             if(isset($this->data["bounty"][$event->getPlayer()->getName()])){
