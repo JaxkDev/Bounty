@@ -19,16 +19,20 @@ use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};
 
 class Main extends PluginBase implements Listener{
     private static $instance;
+	
 	public function onEnable(){
 		self::$instance = $this;
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
 		if($this->eco == null){
-			$this->getLogger()->info('Plugin disabled, couldnt find EconomyAPI');
+		$this->getLogger()->info('Plugin disabled, could not find EconomyAPI.');
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
 		}
-        $this->config = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
+        $this->config = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 2, "bounty" => []]);
         $this->data = $this->config->getAll();
+		if($this->data["version"] !== 2){
+			$this->fixConfig();
+		}
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         return;
 	}
@@ -43,7 +47,6 @@ class Main extends PluginBase implements Listener{
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
         if($cmd->getName() == "bounty"){
         if(!isset($args[0])){
-			//$sender->sendMessage(C::RED.$this->responses->get('invalid_command'));
             return false;
 	    }
 	    switch($args[0]){
@@ -103,9 +106,9 @@ class Main extends PluginBase implements Listener{
 			case 'ver':
 				$sender->sendMessage(C::GOLD."=== DETAILS ===");
 				$sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1040");
-				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0.3");
-				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0.3");
+				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1100");
+				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.1.0");
+				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Development - 1.1.0");
 				break;
 		    case 'help':
                 $sender->sendMessage(C::GREEN."-- Bounty Help: --");
@@ -156,7 +159,7 @@ class Main extends PluginBase implements Listener{
 
     public function hasBounty(string $nick){
         if(isset($this->data['bounty'][$nick])){
-            return "Theres a bounty on you";
+            return "Theres a bounty on you";       //todo move around to API, think this was used privately for hud...
         } else {
             return "";
         }
