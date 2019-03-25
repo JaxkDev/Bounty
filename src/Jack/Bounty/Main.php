@@ -21,10 +21,6 @@ class Main extends PluginBase implements Listener{
     private static $instance;
 	public function onEnable(){
 		self::$instance = $this;
-        if (!is_dir($this->getDataFolder())) {
-            @mkdir($this->getDataFolder());
-            //Use default, not PM.
-        }
         $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
 		if($this->eco == null){
 			$this->getLogger()->info('Plugin disabled, couldnt find EconomyAPI');
@@ -34,14 +30,8 @@ class Main extends PluginBase implements Listener{
         $this->config = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
         $this->data = $this->config->getAll();
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getLogger()->info("Bounty 1.0.2 Enabled");
         return;
 	}
-	
-	public function onDisable(){
-        $this->getLogger()->info("Bounty 1.0.2 Disabled");
-        return;
-    }
 
     /**
      * @param CommandSender $sender
@@ -113,9 +103,9 @@ class Main extends PluginBase implements Listener{
 			case 'ver':
 				$sender->sendMessage(C::GOLD."=== DETAILS ===");
 				$sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1031");
-				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0.2");
-				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0.2");
+				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1040");
+				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0.3");
+				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0.3");
 				break;
 		    case 'help':
                 $sender->sendMessage(C::GREEN."-- Bounty Help: --");
