@@ -1,9 +1,9 @@
 ---
 name: Bounty
 author: Jackthehaxk21
-version: 1.0.3
+version: 1.1.0
 api:
-- 3.0.0
+- 3.7.0
 main: Jack\Bounty\Main
 commands:
   bounty:
