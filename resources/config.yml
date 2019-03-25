@@ -1,0 +1,12 @@
+---
+version: 1
+
+bounty_broadcast: "New Bounty on {PLAYER} worth ${AMOUNT}"
+
+bounty_min: 1
+buunty_max: 1000
+
+leaderboard: true
+leaderboard_format: "text"
+leaderboard_options: "^^ the above can be text (shows in chat via /leaderboard), form (when /leaderboard displays a form) or scoreboard (displays on side of screen, numbers cannot be removed)"
+...
