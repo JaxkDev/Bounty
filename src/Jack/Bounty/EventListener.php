@@ -36,7 +36,9 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};;
+use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
+use pocketmine\event\player\{PlayerJoinEvent,PlayerDeathEvent};;
+use pocketmine\network\mcpe\protocol\{SetScorePacket, RemoveObjectivePacket, SetDisplayObjectivePacket};;
 
 use Jack\Bounty\Main;
 use Jack\Bounty\Form;
@@ -103,16 +105,14 @@ class EventListener implements Listener{
                         }
                     }
                 case 'credits':
-                    $sender->sendMessage(C::GOLD."Credits:");
-                    $sender->sendMessage(C::AQUA."Developer: ".C::RED."Jackthehack21");
+                    $sender->sendMessage(C::GOLD."=== Credits ===");
+                    $sender->sendMessage(C::GREEN."Developer: ".C::RED."Jackthehack21");
                     return true;
                 case 'version':
                 case 'ver':
                     $sender->sendMessage(C::GOLD."=== DETAILS ===");
                     $sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-                    $sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1100");
-                    $sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.1.0");
-                    $sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Development - 1.1.0");
+                    $sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Development - v1.1.0");
                     break;
                 case 'help':
                     $sender->sendMessage(C::GREEN."-- Bounty Help: --");
@@ -197,7 +197,7 @@ class EventListener implements Listener{
                             $sender->sendMessage($msg);
                             break;
                         default:
-                            $sender->sendMessage("Not implemented or incorrect value, try using 'form' option in config.yml");
+                            $sender->sendMessage("Not a valid option in config.yml, try using 'form' option.");
                     }
                     return true;
                 default:
@@ -208,6 +208,13 @@ class EventListener implements Listener{
         }
     }
 
+    public function onSpawn(PlayerJoinEvent $event){
+        $player = $event->getPlayer();
+        if($this->plugin->config["leaderboard"] === true && $this->plugin->config["leaderboard_format"] === "scoreboard"){
+            $this->sendScoreboard($player);
+        }
+    }
+
     public function onDeath(PlayerDeathEvent $event){
         $cause = $event->getEntity()->getLastDamageCause();
         if ($cause->getCause() != 1) return; //not killed by entity
@@ -215,14 +222,78 @@ class EventListener implements Listener{
         if ($cause->getDamager() instanceof Player) {
             $killer = $cause->getDamager();
             if(isset($this->plugin->data["bounty"][$event->getPlayer()->getName()])){
-                $killer->sendMessage("Nice one you got $".$this->plugin->data["bounty"][$event->getPlayer()->getName()]." for killing ".$event->getPlayer()->getName()." who had a bounty on his/her head !");
+                $killer->sendMessage("Nice one you got $".$this->plugin->data["bounty"][$event->getPlayer()->getName()]." for killing ".$event->getPlayer()->getName()." who had a bounty !");
                 $this->plugin->economy->addMoney($killer->getName(), $this->plugin->data["bounty"][$event->getPlayer()->getName()]);
                 unset($this->plugin->data["bounty"][$event->getPlayer()->getName()]);
                 $this->plugin->save();
-                foreach($this->getServer()->getOnlinePlayers() as $player){
+                foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
                     $player->sendMessage(C::GOLD.'Bounty for '.$event->getPlayer()->getName().' has been claimed by '.$killer->getName());
                 }
+                if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
+                    $this->updateScoreboards();
+                }
             }
+        }
+    }
+
+    public function sendScoreboard(Player $player){
+        $pk = new SetDisplayObjectivePacket();
+		$pk->displaySlot = "sidebar";
+		$pk->objectiveName = $player->getLowerCaseName();
+		$pk->displayName = C::BOLD.C::GOLD." Bounty TOP 10 ";
+		$pk->criteriaName = "dummy";
+		$pk->sortOrder = 0;
+		$player->sendDataPacket($pk);
+
+        $pk = new SetScorePacket();
+        $pk->type = $pk::TYPE_CHANGE;
+            
+        if(count($this->plugin->data['bounty']) === 0){
+            $pk2 = new ScorePacketEntry();
+            $pk2->objectiveName = $player->getLowerCaseName();
+            $pk2->type = 3;
+            $pk2->customName = C::RED."No one has a bounty... Yet";
+            $pk2->score = 0;
+            $pk2->scoreboardId = 0;
+                
+            $pk->entries[] = $pk2;
+        } else{
+            $pk2 = new ScorePacketEntry();
+            $pk2->objectiveName = $player->getLowerCaseName();
+            $pk2->type = 3;
+            $pk2->customName = "";
+            $pk2->score = 0;
+            $pk2->scoreboardId = 0;
+            $pk->entries[] = $pk2;
+                
+            $lb = $this->plugin->data['bounty'];
+            asort($lb);
+            $lb = array_reverse($lb);
+            $count = 1;
+            foreach($lb as $name => $amount){
+                if($count >= 11) continue;
+                $pk2 = new ScorePacketEntry();
+                $pk2->objectiveName = $player->getLowerCaseName();
+                $pk2->type = 3;
+                $pk2->customName = C::AQUA." ".$name." : $".$amount;
+                $pk2->score = $count;
+                $pk2->scoreboardId = $count;
+                    
+                $pk->entries[] = $pk2;
+                $count += 1;
+            }
+        }
+
+        $player->sendDataPacket($pk);
+    }
+
+    public function updateScoreboards(){
+        foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+            //printf("updating for %s\n",$player->getName());
+            $pk = new RemoveObjectivePacket();
+            $pk->objectiveName = $player->getLowerCaseName();  //edit lines doesnt want to play ball so hacky fix around it.
+            $player->sendDataPacket($pk);
+            $this->sendScoreboard($player);
         }
     }
 }
