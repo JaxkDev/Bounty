@@ -174,9 +174,10 @@ class EventListener implements Listener{
                             $lb = $this->plugin->data['bounty'];
                             asort($lb);
                             $lb = array_reverse($lb);
+                            $count = 1;
                             foreach($lb as $name => $amount){
-                                //todo numbers, indicating rank
-                                $form->data["content"][] = ["type" => "label", "text" => C::AQUA.$name." : $".$amount];
+                                $form->data["content"][] = ["type" => "label", "text" => C::GREEN.$count.". ".C::AQUA.$name." : $".$amount];
+                                $count += 1;
                             }
                             $sender->sendForm($form);
                             break;
@@ -187,9 +188,10 @@ class EventListener implements Listener{
                             $lb = $this->plugin->data['bounty'];
                             asort($lb);
                             $lb = array_reverse($lb);
+                            $count = 1;
                             foreach($lb as $name => $amount){
-                                //todo numbers, indicating rank
-                                $msg = $msg.C::AQUA.$name." : $".$amount."\n";
+                                $msg = $msg.C::GREEN.$count.". ".C::AQUA.$name." : $".$amount."\n";
+                                $count += 1;
                             }
                             $sender->sendMessage($prefix);
                             $sender->sendMessage($msg);
