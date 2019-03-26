@@ -118,6 +118,7 @@ class EventListener implements Listener{
                     $sender->sendMessage(C::GREEN."-- Bounty Help: --");
                     $sender->sendMessage(C::GOLD."/bounty new <playername> <amount>");
                     $sender->sendMessage(C::GOLD."/bounty list <page>");
+                    if($this->plugin->config["leaderboard"] === true) $sender->sendMessage(C::GOLD."/bounty leaderboard");
                     $sender->sendMessage(C::GOLD."/bounty help");
                     $sender->sendMessage(C::GOLD."/bounty version");
                     $sender->sendMessage(C::GOLD."/bounty credits");
@@ -158,7 +159,7 @@ class EventListener implements Listener{
                 case 'lb':
                     if($this->plugin->config["leaderboard"] !== true) return true;
                     if(count($this->plugin->data['bounty']) == 0){
-                        $sender->sendMessage("Nobody has a bounty...");
+                        $sender->sendMessage("Nobody has a bounty.");
                         return true;
                     }
                     switch($this->plugin->config["leaderboard_format"]){
@@ -169,17 +170,32 @@ class EventListener implements Listener{
                                 "title" => C::AQUA.C::BOLD." -- Bounty Leaderboard --",
                                 "content" => []
                             ];
-                            $form->data["content"][] = ["type" => "label", "text" => C::GOLD."Name : Amount"];
+                            $form->data["content"][] = ["type" => "label", "text" => C::GOLD.C::BOLD."Name : Amount"];
                             $lb = $this->plugin->data['bounty'];
                             asort($lb);
                             $lb = array_reverse($lb);
                             foreach($lb as $name => $amount){
+                                //todo numbers, indicating rank
                                 $form->data["content"][] = ["type" => "label", "text" => C::AQUA.$name." : $".$amount];
                             }
                             $sender->sendForm($form);
                             break;
+                        case "text":
+                        case "chat":
+                            $prefix = C::BOLD.C::GOLD."-- Bounty Leaderboard --";
+                            $msg = C::AQUA."";
+                            $lb = $this->plugin->data['bounty'];
+                            asort($lb);
+                            $lb = array_reverse($lb);
+                            foreach($lb as $name => $amount){
+                                //todo numbers, indicating rank
+                                $msg = $msg.C::AQUA.$name." : $".$amount."\n";
+                            }
+                            $sender->sendMessage($prefix);
+                            $sender->sendMessage($msg);
+                            break;
                         default:
-                            $sender->sendMessage("Not implemented, try using form option in config.yml");
+                            $sender->sendMessage("Not implemented or incorrect value, try using 'form' option in config.yml");
                     }
                     return true;
                 default:
