@@ -43,6 +43,8 @@ use pocketmine\network\mcpe\protocol\{SetScorePacket, RemoveObjectivePacket, Set
 use Jack\Bounty\Main;
 use Jack\Bounty\Form;
 
+use Jack\Bounty\Events\{BountyClaimEvent,BountyAddEvent};;
+
 
 class EventListener implements Listener{
 
@@ -117,6 +119,7 @@ class EventListener implements Listener{
                 case 'help':
                     $sender->sendMessage(C::GREEN."-- Bounty Help: --");
                     $sender->sendMessage(C::GOLD."/bounty new <playername> <amount>");
+                    $sender->sendMessage(C::GOLD."/bounty rem <playername>");
                     $sender->sendMessage(C::GOLD."/bounty list <page>");
                     if($this->plugin->config["leaderboard"] === true) $sender->sendMessage(C::GOLD."/bounty leaderboard");
                     $sender->sendMessage(C::GOLD."/bounty help");
@@ -154,6 +157,11 @@ class EventListener implements Listener{
                         $player->sendMessage(str_replace('{AMOUNT}', $args[2],str_replace('{PLAYER}',$noob->getName(),C::AQUA.$this->plugin->config["bounty_broadcast"])));
                     }
                     return true;
+
+                case "rem":
+                case "remove":
+                    //check perms.
+                    break;
 
                 case 'leaderboard':
                 case 'lb':
