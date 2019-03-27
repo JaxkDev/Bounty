@@ -16,4 +16,11 @@ permissions:
   bounty:
     default: true
     description: "Allows usage of /bounty"
+    children:
+      bounty.new:
+        descripyion: "Allows player to add bountys."
+        default: true
+      bounty.rem:
+        description: "Allows player to remove bountys."
+        default: op
 ...

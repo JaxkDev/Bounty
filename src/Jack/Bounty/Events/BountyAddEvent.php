@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace Jack\Bounty\Event;
+namespace Jack\Bounty\Events;
 
 use pocketmine\Player;
 
@@ -36,7 +36,7 @@ class BountyAddEvent extends BountyEvent{
     private $wanted;
     private $amount;
 
-	public function __construct(Main $plugin, Player $creator, Player $wanted, int $amount){
+	public function __construct(Main $plugin, Player $creator, $wanted, int $amount){
         $this->creator = $creator;
         $this->wanted = $wanted;
         $this->amount = $amount;
@@ -47,11 +47,11 @@ class BountyAddEvent extends BountyEvent{
 		return $this->creator;
     }
     
-    public function getWanted() : Player{
+    public function getWanted(){
         return $this->wanted;
     }
 
-    public function getAmount() : Player{
+    public function getAmount() : int{
         return $this->amount;
     }
 

@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace Jack\Bounty\Event;
+namespace Jack\Bounty\Events;
 
 use pocketmine\Player;
 
@@ -51,7 +51,7 @@ class BountyClaimEvent extends BountyEvent{
         return $this->wanted;
     }
 
-    public function getAmount() : Player{
+    public function getAmount() : int{
         return $this->amount;
     }
 }
