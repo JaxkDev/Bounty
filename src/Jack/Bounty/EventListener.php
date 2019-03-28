@@ -43,7 +43,7 @@ use pocketmine\network\mcpe\protocol\{SetScorePacket, RemoveObjectivePacket, Set
 use Jack\Bounty\Main;
 use Jack\Bounty\Form;
 
-use Jack\Bounty\Events\{BountyClaimEvent,BountyAddEvent};;
+use Jack\Bounty\Events\{BountyClaimEvent,BountyAddEvent,BountyRemEvent};;
 
 
 class EventListener implements Listener{
@@ -153,7 +153,7 @@ class EventListener implements Listener{
                         return true;
                     }
 
-                    //events:
+                   //events:
                     $event = new BountyAddEvent($this->plugin, $sender, $noob, $amount);
 			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
 			        if($event->isCancelled()){
@@ -172,7 +172,7 @@ class EventListener implements Listener{
                     $this->plugin->save();
                     $sender->sendMessage('Bounty successfully added.');
                     foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                        $player->sendMessage(str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),C::AQUA.$this->plugin->config["bounty_broadcast"])));
+                        $player->sendMessage(str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),C::AQUA.$this->plugin->config["bounty_new_broadcast"])));
                     }
                     if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
                         $this->updateScoreboards();
@@ -193,6 +193,16 @@ class EventListener implements Listener{
                         $sender->sendMessage(C::RED."Player not found, make sure you spelt the name correctly.");
                         break;
                     }
+
+                    //events:
+                    $event = new BountyRemEvent($this->plugin, $sender, $args[1], $this->plugin->data["bounty"][strtolower($args[1])]);
+			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
+			        if($event->isCancelled()){
+                        $sender->sendMessage("Bounty cancelled.");
+				        return true;
+                    }
+
+
                     unset($this->plugin->data["bounty"][strtolower($args[1])]);
                     $this->plugin->save();
                     $sender->sendMessage(C::GREEN."Bounty for ".$args[1]." has been removed !");

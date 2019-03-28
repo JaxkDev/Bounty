@@ -1,0 +1,55 @@
+This file is to help people customise Bountys even more, this file is just a guide to what valuescan be used in the adjacent config.yml
+failure to comply with the rules/options will probably result in a crash or unwanted actions.
+
+Important: please remember " around all message values/String values (so everything except the version,bounty_limit and leaderboard on/off option)
+
+---
+version: 1 <- DO NOT TOUCH EVER.
+
+bounty_noperms: Any message (sent when the player does not have permission to create,remove or claim a bounty.)
+
+bounty_new_broadcast: Any message (vars: {PLAYER} {AMOUNT} {SENDER} (sender is creator, player is wanted))
+
+bounty_new_success: Any message (sent to creator when bounty is successfully created)
+
+bounty_new_cancelled: Any message (sent to creator when bounty is cancelled by other plugins.
+
+bounty_new_already: Any message (sent when the selected player already has a bounty)
+
+bounty_new_notfound: Any message (sent when the selected player cannot be found)
+
+bounty_new_funds: Any message (sent when the creator doesnt have enough funds to make the bounty)
+
+
+
+bounty_rem_broadcast: Any message (vars: {PLAYER} {SENDER} , sender is remover, player is wanted (not anymore) )
+
+bounty_rem_success: Any message (sent when removal of bounty was a success)
+
+bounty_rem_cancelled: Any message (sent when the removal was cancelled by other plugins)
+
+bounty_rem_notfound: Any message (sent when the player specified does not have a bounty)
+
+
+bounty_claim_broadcast: Any message (vars {SENDER} {PLAYER} {AMOUNT} (sender-claimer, player-wanted))
+
+bounty_claim_success: Any message (vars {AMOUNT}) sent when you successfully claim a bounty.
+
+bounty_claim_cancelled: Any message (sent when claim is cancelled by other plugins)
+
+
+bounty_limit_enforced: true/false (enables/disables below limits.
+
+bounty_min: 1 (self explanitory i hope)
+buunty_max: 1000
+
+leaderboard: true/false (enables/disables below leaderboard option)
+
+leaderboard_format: "text/form/scoreboard"
+^^
+text: When /bounty lb is run it displays top 10 in chat.
+
+form: when /bounty lb is run it displays it on a form(popup)
+
+scoreboard: constantly shows on side of screen (incompatible with any other scoreboard plugins.)
+...
