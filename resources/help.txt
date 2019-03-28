@@ -2,6 +2,7 @@ This file is to help people customise Bountys even more, this file is just a gui
 failure to comply with the rules/options will probably result in a crash or unwanted actions.
 
 Important: please remember " around all message values/String values (so everything except the version,bounty_limit and leaderboard on/off option)
+If 'Any Message' is left as "" the message will not be sent (essentially a disable option)
 
 ---
 version: 1 <- DO NOT TOUCH EVER, JUST NO, NO, DONT TOUCH.
