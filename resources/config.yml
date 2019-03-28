@@ -20,6 +20,9 @@ bounty_claim_broadcast: "{SENDER} claimed the bounty on {PLAYER}’s head, worth
 bounty_claim_success: "Nice one, you claimed the bounty on {PLAYER} worth {AMOUNT}"
 bounty_claim_cancelled: "Bounty claim was cancelled"
 
+bounty_player_join: "{PLAYER} Has joined the server, kill the player to get ${AMOUNT}"
+bounty_player_quit: ""
+
 bounty_limit_enforced: true
 bounty_min: 1
 bounty_max: 1000

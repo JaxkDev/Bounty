@@ -43,6 +43,11 @@ bounty_claim_success: Any message (vars {AMOUNT}) sent when you successfully cla
 bounty_claim_cancelled: Any message (sent when claim is cancelled by other plugins)
 
 
+bounty_player_join: Any message (sent when player with bounty joins {PLAYER} {AMOUNT})
+
+bounty_player_quit: ^ Same as above but when quits.
+
+
 bounty_limit_enforced: true/false (enables/disables below limits.
 
 bounty_min: 1 (self explanitory i hope)
