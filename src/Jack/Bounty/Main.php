@@ -55,13 +55,17 @@ class Main extends PluginBase implements Listener{
             return;
 		}
         $this->saveResource("config.yml");
+        $this->saveResource("help.txt");
         $this->configFile = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["bounty" => []]);
         $this->data = $this->dataFile->getAll();
         $this->config = $this->configFile->getAll();
-		/*if($this->config["version"] !== 2){ Much later.
-			$this->fixConfig();
-        }*/
+		if($this->config["version"] !== 1){
+            //$this->fixConfig(); when v2 comes along
+            $this->getLogger()->error("You messed with config.yml Plugin Disabled. (To fix this undo all changes or delete config.yml)");
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+            return;
+        }
         $this->EventListener = new EventListener($this);
         $this->getServer()->getPluginManager()->registerEvents($this->EventListener, $this);
         return;

@@ -3,25 +3,26 @@ version: 1
 
 bounty_noperms: "You do not have permission to do that."
 
-bounty_new_broadcast: "New Bounty on {PLAYER} worth ${AMOUNT}"
+bounty_new_broadcast: "New Bounty on {PLAYER} worth ${AMOUNT}, added by {SENDER}"
 bounty_new_success: "Successfully added bounty."
 bounty_new_cancelled: "Bounty addition cancelled."
 bounty_new_already: "That player already has a bounty"
 bounty_new_notfound: "A player with that name cannot be found!"
+bounty_new_fundlimit: "Your bounty amount is not within the limit, (min = {MIN}, max = {MAX})"
 bounty_new_funds: "You dont have enough money to do that :{"
 
 bounty_rem_broadcast: "Bounty for {PLAYER} has been removed by {SENDER}"
-bounty_rem_success:"Successfully removed bounty."
+bounty_rem_success: "Successfully removed bounty."
 bounty_rem_cancelled: "Bounty removal cancelled"
 bounty_rem_notfound: "A player with that name does not have a bounty"
 
 bounty_claim_broadcast: "{SENDER} claimed the bounty on {PLAYER}’s head, worth ${AMOUNT} !"
-bounty_claim_success: "Nice one, you claimed the bounty worth {AMOUNT}"
+bounty_claim_success: "Nice one, you claimed the bounty on {PLAYER} worth {AMOUNT}"
 bounty_claim_cancelled: "Bounty claim was cancelled"
 
 bounty_limit_enforced: true
 bounty_min: 1
-buunty_max: 1000
+bounty_max: 1000
 
 leaderboard: true
 leaderboard_format: "text"

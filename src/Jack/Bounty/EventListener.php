@@ -114,7 +114,7 @@ class EventListener implements Listener{
                 case 'ver':
                     $sender->sendMessage(C::GOLD."=== DETAILS ===");
                     $sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-                    $sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Development - v1.1.0");
+                    $sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA.C::BOLD.C::RED."Development".C::RESET.C::AQUA." - v1.1.0");
                     break;
                 case 'help':
                     $sender->sendMessage(C::GREEN."-- Bounty Help: --");
@@ -128,7 +128,7 @@ class EventListener implements Listener{
                     break;
                 case 'new':
                     if(!$sender->hasPermission("bounty.new")){
-                        $sender->sendMessage(C::RED."You do not have permission to run that command.");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_noperms"]);
                         break;
                     }
                     if(!isset($args[1]) || !isset($args[2])){
@@ -137,11 +137,11 @@ class EventListener implements Listener{
                     }
                     $noob = $this->plugin->getServer()->getOfflinePlayer($args[1]);
                     if(!is_numeric($noob->getFirstPlayed())){
-                        $sender->sendMessage(C::RED."Error > Player not found");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_new_notfound"]);
                         return true;
                     }
                     if(isset($this->plugin->data['bounty'][strtolower($noob->getName())])){
-                        $sender->sendMessage(C::RED."That user already has a bounty");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_new_already"]);
                         return true;
                     }
                     $mon = $this->plugin->economy->myMoney($sender->getName());
@@ -153,26 +153,35 @@ class EventListener implements Listener{
                         return true;
                     }
 
-                   //events:
+                    if($this->plugin->config["bounty_limit_enforced"] === true){
+                        $min = $this->plugin->config["bounty_min"];
+                        $max = $this->plugin->config["bounty_max"];
+                        if($amount > $max || $amount < $min){
+                            $sender->sendMessage(str_replace("{MAX}", $max, str_replace("{MIN}", $min, C::RED.$this->plugin->config["bounty_new_fundlimit"])));
+                            return true;
+                        }
+                    }
+
+                    //events:
                     $event = new BountyAddEvent($this->plugin, $sender, $noob, $amount);
 			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
 			        if($event->isCancelled()){
-                        $sender->sendMessage("Bounty cancelled.");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_new_cancelled"]);
 				        return true;
                     }
 
                     $amount = $event->getAmount();
 
                     if($amount > $mon){
-                        $sender->sendMessage(C::RED."A bounty of ".$args[2]." has been requested, but you dont have that much ( check by typing /mymoney )");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_new_funds"]);
                         return true;
                     }
                     $this->plugin->economy->reduceMoney($sender->getName(), $amount);
                     $this->plugin->data['bounty'][strtolower($noob->getName())] = $amount;
                     $this->plugin->save();
-                    $sender->sendMessage('Bounty successfully added.');
+                    $sender->sendMessage($this->plugin->config['bounty_new_success']);
                     foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                        $player->sendMessage(str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),C::AQUA.$this->plugin->config["bounty_new_broadcast"])));
+                        $player->sendMessage(str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),C::AQUA.$this->plugin->config["bounty_new_broadcast"]))));
                     }
                     if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
                         $this->updateScoreboards();
@@ -182,7 +191,7 @@ class EventListener implements Listener{
                 case "rem":
                 case "remove":
                     if(!$sender->hasPermission("bounty.rem")){
-                        $sender->sendMessage(C::RED."You do not have permission to run that command.");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_noperms"]);
                         break;
                     }
                     if(!isset($args[1])){
@@ -190,7 +199,7 @@ class EventListener implements Listener{
                         break;
                     }
                     if(count($this->plugin->data['bounty']) == 0 || !is_int($this->plugin->data["bounty"][strtolower($args[1])])){
-                        $sender->sendMessage(C::RED."Player not found, make sure you spelt the name correctly.");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_rem_notfound"]);
                         break;
                     }
 
@@ -198,14 +207,17 @@ class EventListener implements Listener{
                     $event = new BountyRemEvent($this->plugin, $sender, $args[1], $this->plugin->data["bounty"][strtolower($args[1])]);
 			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
 			        if($event->isCancelled()){
-                        $sender->sendMessage("Bounty cancelled.");
+                        $sender->sendMessage(C::RED.$this->plugin->config["bounty_rem_cancelled"]);
 				        return true;
                     }
 
+                    foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                        $player->sendMessage(str_replace('{SENDER}', $sender->getName(),str_replace('{PLAYER}',$args[1],C::AQUA.$this->plugin->config["bounty_rem_broadcast"])));
+                    }
 
                     unset($this->plugin->data["bounty"][strtolower($args[1])]);
                     $this->plugin->save();
-                    $sender->sendMessage(C::GREEN."Bounty for ".$args[1]." has been removed !");
+                    $sender->sendMessage(C::GREEN.$this->plugin->config["bounty_rem_success"]);
                     if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
                         $this->updateScoreboards();
                     }
@@ -285,17 +297,17 @@ class EventListener implements Listener{
                 $ev = new BountyClaimEvent($this->plugin, $killer, $event->getPlayer(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
 			    $this->plugin->getServer()->getPluginManager()->callEvent($ev);
 		        if($ev->isCancelled()){
-                    $sender->sendMessage("Bounty claim cancelled.");
+                    $sender->sendMessage(C::RED.$this->plugin->config["bounty_claim_cancelled"]);
 				    return true;
                 }
 
-                $killer->sendMessage("Nice one you got $".$this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]." for killing ".$event->getPlayer()->getLowerCaseName()." who had a bounty !");
+                $killer->sendMessage(str_replace('{AMOUNT}', $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())],str_replace('{PLAYER}',$event->getPlayer()->getLowerCaseName(),C::GREEN.$this->plugin->config["bounty_claim_success"])));
+                foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                    $player->sendMessage(str_replace("{PLAYER}", $event->getPlayer()->getName(), str_replace("{SENDER}", $killer->getName(), str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())] , C::GOLD.$this->plugin->config["bounty_claim_success"]))));
+                }
                 $this->plugin->economy->addMoney($killer->getName(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
                 unset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
                 $this->plugin->save();
-                foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                    $player->sendMessage(C::GOLD.'Bounty for '.$event->getPlayer()->getLowerCaseName().' has been claimed by '.$killer->getLowerCaseName());
-                }
                 if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
                     $this->updateScoreboards();
                 }
