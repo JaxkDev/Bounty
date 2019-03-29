@@ -295,12 +295,15 @@ class EventListener implements Listener{
 
     public function onSpawn(PlayerJoinEvent $event){
         $player = $event->getPlayer();
+        if($this->plugin->config["leaderboard"] === true && $this->plugin->config["leaderboard_format"] === "scoreboard"){
+            $this->sendScoreboard($player);
+        }
         if(isset($this->plugin->data["bounty"][strtolower($player->getName())])){
             $msg = str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->config["bounty_player_join"]));
             if($msg === "") return;
-        }
-        if($this->plugin->config["leaderboard"] === true && $this->plugin->config["leaderboard_format"] === "scoreboard"){
-            $this->sendScoreboard($player);
+            foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                $player->sendMessage($msg);
+            }
         }
     }
 
@@ -309,6 +312,9 @@ class EventListener implements Listener{
         if(isset($this->plugin->data["bounty"][strtolower($player->getName())])){
             $msg = str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->config["bounty_player_quit"]));
             if($msg === "") return;
+            foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                $player->sendMessage($msg);
+            }
         }
     }
 

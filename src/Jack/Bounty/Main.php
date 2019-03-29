@@ -75,19 +75,18 @@ class Main extends PluginBase implements Listener{
         return $this->EventListener->handleCommand($sender, $cmd, $label, $args);
     }
 
-    public function hasBounty(string $nick){
-        if(isset($this->data['bounty'][$nick])){
-            return "Theres a bounty on you";       //todo move around to API, think this was used privately for hud...
-        } else {
-            return "";
+    public function hasBounty(string $nick) : bool{
+        if(isset($this->data['bounty'][strtolower($nick)])){
+            return true;
         }
+        return false;
     }
 
-    public function getBounty(string $nick){
-        if(!isset($this->data['bounty'][$nick])){
-            return 0;
+    public function getBounty(string $nick) : int{
+        if(!isset($this->data['bounty'][strtolower($nick)])){
+            return -1;
         }
-        return $this->data['bounty'][$nick];
+        return $this->data['bounty'][strtolower($nick)];
     }
 
     public function save(bool $data = true, bool $cfg = false){
@@ -100,10 +99,6 @@ class Main extends PluginBase implements Listener{
             $this->configFile->save();
         }
 	}
-
-    /*public function fixConfig(){
-        $oldConfig = $this->data;
-    }*/
 	
     public static function getInstance() : self{
 	    return self::$instance;
