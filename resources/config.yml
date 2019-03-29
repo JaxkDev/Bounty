@@ -11,6 +11,12 @@ bounty_new_notfound: "A player with that name cannot be found!"
 bounty_new_fundlimit: "Your bounty amount is not within the limit, (min = {MIN}, max = {MAX})"
 bounty_new_funds: "You dont have enough money to do that :{"
 
+bounty_multiple: true
+bounty_multiple_broadcast: "Bounty on {PLAYER} has had ${AMOUNT} added to it by {SENDER}, The new bounty is ${TOTAL}"
+bounty_multiple_success: "Successfully added bounty."
+bounty_multiple_cancelled: "Bounty addition cancelled."
+bounty_multiple_funds: "You dont have enough money to do that :{"
+
 bounty_rem_broadcast: "Bounty for {PLAYER} has been removed by {SENDER}"
 bounty_rem_success: "Successfully removed bounty."
 bounty_rem_cancelled: "Bounty removal cancelled"

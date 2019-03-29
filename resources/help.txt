@@ -26,6 +26,16 @@ bounty_new_fundlimit: Any message (VARS: {MIN} {MAX}) (sent when the bounty amou
 bounty_new_funds: Any message (sent when the creator doesnt have enough funds to make the bounty)
 
 
+bounty_multiple: true/false (When true players can keep placing bountys on the same person adding the bounty total higher and higher, when enabled the bounty_new_already config is not used.)
+
+bounty_multiple_broadcast: Any message (vars {PLAYER}-Wanted person, {AMOUNT}-Amount added, {SENDER}-person adding, {TOTAL}-total bounty after adding.)
+
+bounty_multiple_success: Any message (same as bounty_new_success but used when adding to bounty.)
+
+bounty_multiple_cancelled: Any message (same as bounty_new_cancelled but used when adding to bounty.)
+
+bounty_multiple_funds: Any message (same as bounty_new_funds but used when adding to bounty.)
+
 
 bounty_rem_broadcast: Any message (vars: {PLAYER} {SENDER} , sender is remover, player is wanted (not anymore) )
 

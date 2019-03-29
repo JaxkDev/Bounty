@@ -30,32 +30,28 @@ use pocketmine\Player;
 
 use Jack\Bounty\Main;
 
-class BountyAddEvent extends BountyEvent{
+class BountyRemoveEvent extends BountyEvent{
     
-    private $player;
+    private $creator;
     private $wanted;
     private $amount;
 
-	public function __construct(Main $plugin, Player $player, $wanted, int $amount){
-        $this->player = $player;
+	public function __construct(Main $plugin, Player $remover, string $wanted, int $amount){
+        $this->remover = $remover;
         $this->wanted = $wanted;
         $this->amount = $amount;
 		parent::__construct($plugin);
     }
     
-	public function getPlayer() : Player{
-		return $this->player;
+	public function getRemover() : Player{
+		return $this->creator;
     }
     
-    public function getWanted(){
+    public function getWanted() : string{
         return $this->wanted;
     }
 
     public function getAmount() : int{
         return $this->amount;
-    }
-
-    public function setAmount(int $amount) : void{
-        $this->amount = $amount;
     }
 }

@@ -43,7 +43,7 @@ use pocketmine\network\mcpe\protocol\{SetScorePacket, RemoveObjectivePacket, Set
 use Jack\Bounty\Main;
 use Jack\Bounty\Form;
 
-use Jack\Bounty\Events\{BountyClaimEvent,BountyAddEvent,BountyRemEvent};;
+use Jack\Bounty\Events\{BountyClaimEvent,BountyAddEvent,BountyCreateEvent,BountyRemoveEvent};;
 
 
 class EventListener implements Listener{
@@ -130,7 +130,8 @@ class EventListener implements Listener{
                     $sender->sendMessage(C::GOLD."/bounty version");
                     $sender->sendMessage(C::GOLD."/bounty credits");
                     break;
-                case 'new':
+                case "add":
+                case "new":
                     if(!$sender->hasPermission("bounty.new")){
                         $msg = $this->plugin->config["bounty_noperms"];
                         if($msg !== "") $sender->sendMessage(C::RED.$msg);
@@ -146,7 +147,7 @@ class EventListener implements Listener{
                         if($msg !== "") $sender->sendMessage(C::RED.$msg);
                         return true;
                     }
-                    if(isset($this->plugin->data['bounty'][strtolower($noob->getName())])){
+                    if($this->plugin->config["bounty_multiple"] === false && isset($this->plugin->data['bounty'][strtolower($noob->getName())])){
                         $msg = $this->plugin->config["bounty_new_already"];
                         if($msg !== "") $sender->sendMessage(C::RED.$msg);
                         return true;
@@ -170,8 +171,49 @@ class EventListener implements Listener{
                         }
                     }
 
+                    if(isset($this->plugin->data["bounty"][strtolower($noob->getName())])){
+                        if($this->plugin->config["bounty_multiple"] === true){
+                            //Add to existing:
+                            //events:
+                            $event = new BountyAddEvent($this->plugin, $sender, $noob, $amount);
+                            $this->plugin->getServer()->getPluginManager()->callEvent($event);
+                            if($event->isCancelled()){
+                                $msg = $this->plugin->config["bounty_multiple_cancelled"];
+                                if($msg !== "") $sender->sendMessage(C::RED.$msg);
+                                return true;
+                            }
+
+                            $amount = $event->getAmount();
+
+                            if($amount > $mon){
+                                $msg = $this->plugin->config["bounty_multiple_funds"];
+                                if($msg !== "") $sender->sendMessage(C::RED.$msg);
+                                return true;
+                            }
+                            $this->plugin->economy->reduceMoney($sender->getName(), $amount);
+                            $this->plugin->data['bounty'][strtolower($noob->getName())] = $this->plugin->data['bounty'][strtolower($noob->getName())]+$amount;
+                            $this->plugin->save();
+                            if($this->plugin->config['bounty_multiple_success'] !== "") $sender->sendMessage($this->plugin->config['bounty_multiple_success']);
+                            foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                                $msg = str_replace("{TOTAL}", $this->plugin->data['bounty'][strtolower($noob->getName())], str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),C::AQUA.$this->plugin->config["bounty_multiple_broadcast"]))));
+                                if($msg !== "") $player->sendMessage($msg);
+                            }
+                            if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
+                                $this->updateScoreboards();
+                            }
+                            return true;
+                        }  else {
+                            //already has bounty, and multiple disabled.
+                            $msg = $this->plugin->config["bounty_new_already"];
+                            if($msg !== "") $sender->sendMessage(C::RED.$msg);
+                            return true;
+                        }
+                    }
+
+                    //Create new:
+
                     //events:
-                    $event = new BountyAddEvent($this->plugin, $sender, $noob, $amount);
+                    $event = new BountyCreateEvent($this->plugin, $sender, $noob, $amount);
 			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
 			        if($event->isCancelled()){
                         $msg = $this->plugin->config["bounty_new_cancelled"];
