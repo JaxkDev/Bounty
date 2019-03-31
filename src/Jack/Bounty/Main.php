@@ -1,4 +1,28 @@
 <?php
+
+/*
+*   Bounty Pocketmine Plugin
+*   Copyright (C) 2019 Jackthehack21 (Jack Honour/Jackthehaxk21/JaxkDev)
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+*   Twitter :: @JaxkDev
+*   Discord :: Jackthehaxk21#8860
+*   Email   :: gangnam253@gmail.com
+*/
+
+
 declare(strict_types=1);
 namespace Jack\Bounty;
 
@@ -16,184 +40,69 @@ use pocketmine\command\ConsoleCommandSender;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};;
 
+use Jack\Bounty\EventListener;
+
 
 class Main extends PluginBase implements Listener{
     private static $instance;
+	
 	public function onEnable(){
 		self::$instance = $this;
-        $this->eco = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
-		if($this->eco == null){
-			$this->getLogger()->info('Plugin disabled, couldnt find EconomyAPI');
+        $this->economy = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
+		if($this->economy == null){
+            //Shouldnt show now its dependant in plugin.yml
+		$this->getLogger()->info('Plugin disabled, could not find EconomyAPI.');
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
 		}
-        $this->config = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
-        $this->data = $this->config->getAll();
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+        $this->saveResource("config.yml");
+        $this->saveResource("help.txt");
+        $this->configFile = new Config($this->getDataFolder() . "config.yml", Config::YAML);
+        $this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["bounty" => []]);
+        $this->data = $this->dataFile->getAll();
+        $this->config = $this->configFile->getAll();
+		if($this->config["version"] !== 1){
+            //$this->fixConfig(); when v2 comes along
+            $this->getLogger()->error("You messed with config.yml Plugin Disabled. (To fix this undo all changes or delete config.yml)");
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+            return;
+        }
+        $this->EventListener = new EventListener($this);
+        $this->getServer()->getPluginManager()->registerEvents($this->EventListener, $this);
         return;
-	}
-
-    /**
-     * @param CommandSender $sender
-     * @param Command $cmd
-     * @param string $label
-     * @param array $args
-     * @return bool
-     */
+    }
+    
     public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
-        if($cmd->getName() == "bounty"){
-        if(!isset($args[0])){
-			//$sender->sendMessage(C::RED.$this->responses->get('invalid_command'));
-            return false;
-	    }
-	    switch($args[0]){
-            case 'list':
-                if(!isset($args[1]) || $args[1] == '1'){
-                    if(count($this->data['bounty']) == 0){
-                        $sender->sendMessage(C::RED."Nobody has a bounty yet.");
-                        return true;
-                    } else {
-                        $tmp = null;
-                        if(count($this->data['bounty']) >= 5){
-                            $tmp = array_slice($this->data['bounty'], 0, 5, true);
-                        } else {
-                            $tmp = array_slice($this->data['bounty'], 0, count($this->data['bounty']), true);
-                        }
-                        $data = C::GREEN.'Page '.C::RED."1".C::GOLD."/".C::RED.ceil(count($this->data['bounty'])/5)."\n";
-                        foreach($tmp as $user => $price){
-                            $data = $data.C::GOLD.$user." -> ".C::GREEN."$".$price."\n";
-                        }
-                        $sender->sendMessage($data);
-                        return true;
-                    }
-                } else {
-                    if(is_nan(intval($args[1]))){
-                        $sender->sendMessage(C::RED."Not a valid page number.");
-                        return true;
-                    } else {
-                        if(count($this->data['bounty']) == 0){
-                            $sender->sendMessage(C::RED."Nobody has a bounty yet.");
-                            return true;
-                        } else {
-                            if(intval($args[1]) > ceil(count($this->data['bounty'])/5)){
-                                $sender->sendMessage(C::RED."Theres only ".ceil(count($this->data['bounty'])/5). " Pages.");
-                                return true;
-                            } else {
-                                $tmp = null;
-                                if(count($this->data['bounty']) >= intval($args[1])*5){
-                                    $tmp = array_slice($this->data['bounty'], (intval($args[1])*5)-5, (intval($args[1])*5), true);
-                                } else {
-                                    $tmp = array_slice($this->data['bounty'], (intval($args[1])*5)-5, count($this->data['bounty']), true);
-                                }
-                                $data = C::GREEN.'Page '.C::RED.$args[1].C::GOLD."/".C::RED.ceil(count($this->data['bounty'])/5)."\n";
-                                foreach($tmp as $user => $price){
-                                    $data = $data.C::GOLD.$user.C::RED." -> ".C::GREEN."$".$price."\n";
-                                }
-                                $sender->sendMessage($data);
-                                return true;
-                            }
-                        }
-                    }
-                }
-            case 'credits':
-                $sender->sendMessage(C::GOLD."Credits:");
-                $sender->sendMessage(C::AQUA."Developer: ".C::RED."Jackthehack21");
-                return true;
-			case 'version':
-			case 'ver':
-				$sender->sendMessage(C::GOLD."=== DETAILS ===");
-				$sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-				$sender->sendMessage(C::GREEN."Build    ".C::GOLD.":: ".C::AQUA."1040");
-				$sender->sendMessage(C::GREEN."Version  ".C::GOLD.":: ".C::AQUA."1.0.3");
-				$sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA."Public Release - 1.0.3");
-				break;
-		    case 'help':
-                $sender->sendMessage(C::GREEN."-- Bounty Help: --");
-                $sender->sendMessage(C::GOLD."/bounty new <playername> <amount>");
-                $sender->sendMessage(C::GOLD."/bounty list <page>");
-                $sender->sendMessage(C::GOLD."/bounty help");
-                $sender->sendMessage(C::GOLD."/bounty version");
-                $sender->sendMessage(C::GOLD."/bounty credits");
-                break;
-            case 'new':
-                if(!isset($args[1]) || !isset($args[2])){
-                    $sender->sendMessage(C::RED."/bounty new <playername> <amount>");
-                    break;
-                }
-                $noob = $this->getServer()->getOfflinePlayer($args[1]);
-				if(!is_numeric($noob->getFirstPlayed())){
-					$sender->sendMessage(C::RED."Error > Player not found");
-					return true;
-                }
-                if(isset($this->data['bounty'][$noob->getName()])){
-                    $sender->sendMessage(C::RED."That user already has a bounty");
-                    return true;
-                }
-                $mon = $this->eco->myMoney($sender->getName());
-                if(is_nan(intval($args[2]))){
-                    $sender->sendMessage(C::RED."/bounty new <playername> <AMOUNT>");
-                    return true;
-                }
-                if(intval($args[2]) > $mon){
-                    $sender->sendMessage(C::RED."You placed a bounty of ".$args[2]." but you dont have that much, check by typing /mymoney");
-                    return true;
-                }
-                $this->eco->reduceMoney($sender->getName(), intval($args[2]));
-                $this->data['bounty'][$noob->getName()] = intval($args[2]);
-                $this->save();
-                $sender->sendMessage('Bounty Added !');
-                foreach($this->getServer()->getOnlinePlayers() as $player){
-                    $player->sendMessage(str_replace('{money}', $args[2],str_replace('{player}',$noob->getName(),C::AQUA."{player} Has a bount worth $"."{money}, Kill them to get the reward.")));
-                }
-                return true;
-            default:
-                $sender->sendMessage(C::RED."Invalid Command, Try /bounty help");
-                break;
-		}
-		return true;
-        }
+        return $this->EventListener->handleCommand($sender, $cmd, $label, $args);
     }
 
-    public function hasBounty(string $nick){
-        if(isset($this->data['bounty'][$nick])){
-            return "Theres a bounty on you";
-        } else {
-            return "";
+    public function hasBounty(string $nick) : bool{
+        if(isset($this->data['bounty'][strtolower($nick)])){
+            return true;
         }
+        return false;
     }
 
-    public function getBounty(string $nick){
-        if(!isset($this->data['bounty'][$nick])){
-            return "";
+    public function getBounty(string $nick) : int{
+        if(!isset($this->data['bounty'][strtolower($nick)])){
+            return -1;
         }
-        return $this->data['bounty'][$nick];
+        return $this->data['bounty'][strtolower($nick)];
     }
 
-    public function save(){
-		$this->config->setAll($this->data);
-		$this->config->save();
+    public function save(bool $data = true, bool $cfg = false){
+		if($data === true){
+            $this->dataFile->setAll($this->data);
+		    $this->dataFile->save();
+        }
+        if($cfg === true){
+            $this->configFile->setAll($this->config);
+            $this->configFile->save();
+        }
 	}
-
-    public function onDeath(PlayerDeathEvent $event){
-        $cause = $event->getEntity()->getLastDamageCause(); // Thanks IZeoGamer !
-        if ($cause->getCause() != 1) return; //not killed by entity
-        if (!$cause instanceof EntityDamageByEntityEvent) return; //double check
-        if ($cause->getDamager() instanceof Player) {
-            $killer = $cause->getDamager();
-            if(isset($this->data["bounty"][$event->getPlayer()->getName()])){
-                $killer->sendMessage("Nice one you got $".$this->data["bounty"][$event->getPlayer()->getName()]." for killing ".$event->getPlayer()->getName()." who had a bounty on his/her head !");
-                $this->eco->addMoney($killer->getName(), $this->data["bounty"][$event->getPlayer()->getName()]);
-                unset($this->data["bounty"][$event->getPlayer()->getName()]);
-                $this->save();
-                foreach($this->getServer()->getOnlinePlayers() as $player){
-                    $player->sendMessage(C::GOLD.'Bounty for '.$event->getPlayer()->getName().' has been claimed by '.$killer->getName());
-                }
-            }
-        }
-    }
 	
     public static function getInstance() : self{
-	return self::$instance;
+	    return self::$instance;
     }
 
 }
