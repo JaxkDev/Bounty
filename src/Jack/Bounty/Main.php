@@ -50,6 +50,7 @@ class Main extends PluginBase implements Listener{
 		self::$instance = $this;
         $this->economy = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
 		if($this->economy == null){
+            //Shouldnt show now its dependant in plugin.yml
 		$this->getLogger()->info('Plugin disabled, could not find EconomyAPI.');
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;

@@ -117,8 +117,8 @@ class EventListener implements Listener{
                 case 'version':
                 case 'ver':
                     $sender->sendMessage(C::GOLD."=== DETAILS ===");
-                    $sender->sendMessage(C::GREEN."Name     ".C::GOLD.":: ".C::AQUA."Bounty");
-                    $sender->sendMessage(C::GREEN."Release  ".C::GOLD.":: ".C::AQUA.C::BOLD.C::RED."Development".C::RESET.C::AQUA." - v1.1.0");
+                    $sender->sendMessage(C::GREEN."Name    ".C::GOLD.":: ".C::AQUA."Bounty");
+                    $sender->sendMessage(C::GREEN."Version    ".C::GOLD.":: ".C::AQUA.C::BOLD.C::RED."Release".C::RESET.C::AQUA." - v1.1.0");
                     break;
                 case 'help':
                     $sender->sendMessage(C::GREEN."-- Bounty Help: --");
