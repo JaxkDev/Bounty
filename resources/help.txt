@@ -1,4 +1,4 @@
-This file is to help people customise Bountys even more, this file is just a guide to what valuescan be used in the adjacent config.yml
+This file is to help people customise Bounty's even more, this file is just a guide to what values can be used in the adjacent config.yml
 failure to comply with the rules/options will probably result in a crash or unwanted actions.
 
 Important: please remember " around all message values/String values (so everything except the version,bounty_limit and leaderboard on/off option)
@@ -11,7 +11,7 @@ Colour Codes:
 {AQUA} {RED} {LIGHT_PURPLE} {YELLOW} {WHITE} {OBFUSCATED} {BOLD} {STRIKETHROUGH} {UNDERLINE} {ITALIC} {RESET}
 
 ---
-version: 1 <- DO NOT TOUCH EVER, JUST NO, NO, DONT TOUCH.
+version: 2 <- DO NOT TOUCH EVER, JUST NO, NO, DONT TOUCH. (Dont say i didnt warn you.)
 
 
 bounty_noperms: Any message (sent when the player does not have permission to create or remove a bounty.)
@@ -66,11 +66,13 @@ bounty_player_quit: ^ Same as above but when quits.
 
 bounty_limit_enforced: true/false (enables/disables below limits.
 
-bounty_min: 1 (self explanitory i hope)
-buunty_max: 1000
+bounty_min: 1 (self explanatory i hope)
+bounty_max: 1000
+
+floating_topwanted: true/false (Shows/Hides the floating text displaying top10 bountys. (positionable by /bounty set topwanted) )
+floating_topwanted_format: Any message (vars {WANTED} {AMOUNT} {NUMBER}, number is position in leaderboard) (this format is used for every line in the floating text.)
 
 leaderboard: true/false (enables/disables below leaderboard option)
-
 leaderboard_format: "text/form/scoreboard"
 ^^
 text: When /bounty lb is run it displays top 10 in chat.

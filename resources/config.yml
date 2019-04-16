@@ -33,6 +33,10 @@ bounty_limit_enforced: true
 bounty_min: 1
 bounty_max: 1000
 
+floating_topwanted: true
+floating_topwanted_format: "{GOLD}{NUMBER}. {GREEN}{WANTED} : {RED}${AMOUNT}"
+
+
 leaderboard: true
 leaderboard_format: "text"
 ...

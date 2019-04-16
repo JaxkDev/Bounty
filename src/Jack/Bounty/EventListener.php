@@ -30,23 +30,19 @@ use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat as C;
 
 use pocketmine\Player;
-use pocketmine\Server;
-use pocketmine\OfflinePlayer;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 use pocketmine\event\player\{PlayerJoinEvent,PlayerDeathEvent,PlayerQuitEvent};;
 use pocketmine\network\mcpe\protocol\{SetScorePacket, RemoveObjectivePacket, SetDisplayObjectivePacket};;
 
-use Jack\Bounty\Main;
-use Jack\Bounty\Form;
-
 use Jack\Bounty\Events\{BountyClaimEvent,BountyAddEvent,BountyCreateEvent,BountyRemoveEvent};;
 
 
 class EventListener implements Listener{
+
+    public $plugin;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
@@ -214,7 +210,7 @@ class EventListener implements Listener{
 
                     //events:
                     $event = new BountyCreateEvent($this->plugin, $sender, $noob, $amount);
-			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
+			        $event->call();
 			        if($event->isCancelled()){
                         $msg = $this->plugin->config["bounty_new_cancelled"];
                         if($msg !== "") $sender->sendMessage($this->colour($msg));
@@ -260,7 +256,7 @@ class EventListener implements Listener{
 
                     //events:
                     $event = new BountyRemoveEvent($this->plugin, $sender, $args[1], $this->plugin->data["bounty"][strtolower($args[1])]);
-			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
+			        $event->call();
 			        if($event->isCancelled()){
                         $msg = $this->plugin->config["bounty_rem_cancelled"];
                         if($msg !== "") $sender->sendMessage($this->colour($msg));

@@ -22,50 +22,55 @@
 *   Email   :: gangnam253@gmail.com
 */
 
+/** @noinspection PhpUndefinedMethodInspection */
 
 declare(strict_types=1);
 namespace Jack\Bounty;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
-use pocketmine\utils\TextFormat as C;
 
-use pocketmine\Player;
-use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\OfflinePlayer;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
-use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\event\player\{PlayerJoinEvent,PlayerQuitEvent, PlayerDeathEvent};;
-
-use Jack\Bounty\EventListener;
 
 
 class Main extends PluginBase implements Listener{
     private static $instance;
+
+    public const DATA_VER = 1;
+    public const CONFIG_VER = 2;
+
+    public $economy;
+    public $dataFile;
+    public $configFile;
+    public $data;
+    public $config;
+
+    public $EventListener;
 	
 	public function onEnable(){
 		self::$instance = $this;
         $this->economy = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
 		if($this->economy == null){
-            //Shouldnt show now its dependant in plugin.yml
-		$this->getLogger()->info('Plugin disabled, could not find EconomyAPI.');
+            //Shouldn't show now its dependant in plugin.yml
+		    $this->getLogger()->warning('Plugin disabled, could not find EconomyAPI.');
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
 		}
         $this->saveResource("config.yml");
         $this->saveResource("help.txt");
         $this->configFile = new Config($this->getDataFolder() . "config.yml", Config::YAML);
-        $this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["bounty" => []]);
+        $this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => [], "floating_topwanted" => []]);
         $this->data = $this->dataFile->getAll();
         $this->config = $this->configFile->getAll();
-		if($this->config["version"] !== 1){
-            //$this->fixConfig(); when v2 comes along
-            $this->getLogger()->error("You messed with config.yml Plugin Disabled. (To fix this undo all changes or delete config.yml)");
-            $this->getServer()->getPluginManager()->disablePlugin($this);
-            return;
+		if(!array_key_exists("version", $this->config) or $this->config["version"] !== $this::CONFIG_VER){
+            $this->updateConfig();
+            $this->getLogger()->debug("Updated config to version ".$this::CONFIG_VER);
+        }
+		if(!array_key_exists("version", $this->data) or $this->data["version"] !== $this::DATA_VER){
+		    $this->updateData();
+		    $this->getLogger()->debug("Updated data to version ".$this::DATA_VER);
         }
         $this->EventListener = new EventListener($this);
         $this->getServer()->getPluginManager()->registerEvents($this->EventListener, $this);
@@ -100,6 +105,33 @@ class Main extends PluginBase implements Listener{
             $this->configFile->save();
         }
 	}
+
+	public function updateData() : void{
+	    //This is very unlikely to change more then once or twice a year.
+
+        if(!array_key_exists("floating_topwanted", $this->data)){
+            $this->data["floating_topwanted"] = [];
+        }
+
+        $this->data["version"] = $this::DATA_VER;
+
+        $this->save(true, false);
+    }
+
+	public function updateConfig() : void{
+	    //This is going to be very long if not controlled... (todo either support only one version break, or find a new method possibly compare keys and then set default values.)
+
+        if(!array_key_exists("floating_topwanted",$this->config)){
+            $this->config["floating_topwanted"] = true;
+        }
+        if(!array_key_exists("floating_topwanted_format", $this->config)){
+            $this->config["floating_topwanted_format"] = "{GOLD}{NUMBER}. {GREEN}{WANTED} : {RED}\${AMOUNT}";
+        }
+
+        $this->config["version"] = $this::CONFIG_VER;
+
+        $this->save(false, true);
+    }
 	
     public static function getInstance() : self{
 	    return self::$instance;
