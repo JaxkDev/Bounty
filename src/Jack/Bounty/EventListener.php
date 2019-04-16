@@ -259,7 +259,7 @@ class EventListener implements Listener{
                     }
 
                     //events:
-                    $event = new BountyRemEvent($this->plugin, $sender, $args[1], $this->plugin->data["bounty"][strtolower($args[1])]);
+                    $event = new BountyRemoveEvent($this->plugin, $sender, $args[1], $this->plugin->data["bounty"][strtolower($args[1])]);
 			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
 			        if($event->isCancelled()){
                         $msg = $this->plugin->config["bounty_rem_cancelled"];
@@ -372,7 +372,7 @@ class EventListener implements Listener{
                 $ev = new BountyClaimEvent($this->plugin, $killer, $event->getPlayer(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
 			    $this->plugin->getServer()->getPluginManager()->callEvent($ev);
 		        if($ev->isCancelled()){
-                    if($this->plugin->config["bounty_claim_cancelled"] !== "") $sender->sendMessage($this->colour($this->plugin->config["bounty_claim_cancelled"]));
+                    if($this->plugin->config["bounty_claim_cancelled"] !== "") $killer->sendMessage($this->colour($this->plugin->config["bounty_claim_cancelled"]));
 				    return true;
                 }
 
