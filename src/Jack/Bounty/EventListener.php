@@ -30,23 +30,17 @@ use pocketmine\event\Listener;
 use pocketmine\utils\TextFormat as C;
 
 use pocketmine\Player;
-use pocketmine\Server;
-use pocketmine\OfflinePlayer;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 use pocketmine\event\player\{PlayerJoinEvent,PlayerDeathEvent,PlayerQuitEvent};;
-use pocketmine\network\mcpe\protocol\{SetScorePacket, RemoveObjectivePacket, SetDisplayObjectivePacket};;
-
-use Jack\Bounty\Main;
-use Jack\Bounty\Form;
 
 use Jack\Bounty\Events\{BountyClaimEvent,BountyAddEvent,BountyCreateEvent,BountyRemoveEvent};;
 
 
 class EventListener implements Listener{
+
+    public $plugin;
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
@@ -58,7 +52,7 @@ class EventListener implements Listener{
                 return false;
             }
             if(!$sender instanceof Player){
-                $sender->sendMessage(C::RED."Commands can only be run ingame");
+                $sender->sendMessage(C::RED."Commands can only be run in-game");
                 return true;
             }
             switch($args[0]){
@@ -198,9 +192,6 @@ class EventListener implements Listener{
                                 $msg = str_replace("{TOTAL}", $this->plugin->data['bounty'][strtolower($noob->getName())], str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->config["bounty_multiple_broadcast"])))));
                                 if($msg !== "") $player->sendMessage($msg);
                             }
-                            if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
-                                $this->updateScoreboards();
-                            }
                             return true;
                         }  else {
                             //already has bounty, and multiple disabled.
@@ -214,7 +205,7 @@ class EventListener implements Listener{
 
                     //events:
                     $event = new BountyCreateEvent($this->plugin, $sender, $noob, $amount);
-			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
+			        $event->call();
 			        if($event->isCancelled()){
                         $msg = $this->plugin->config["bounty_new_cancelled"];
                         if($msg !== "") $sender->sendMessage($this->colour($msg));
@@ -235,9 +226,6 @@ class EventListener implements Listener{
                     foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
                         $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->config["bounty_new_broadcast"]))));
                         if($msg !== "") $player->sendMessage($msg);
-                    }
-                    if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
-                        $this->updateScoreboards();
                     }
                     return true;
 
@@ -260,7 +248,7 @@ class EventListener implements Listener{
 
                     //events:
                     $event = new BountyRemoveEvent($this->plugin, $sender, $args[1], $this->plugin->data["bounty"][strtolower($args[1])]);
-			        $this->plugin->getServer()->getPluginManager()->callEvent($event);
+			        $event->call();
 			        if($event->isCancelled()){
                         $msg = $this->plugin->config["bounty_rem_cancelled"];
                         if($msg !== "") $sender->sendMessage($this->colour($msg));
@@ -275,9 +263,6 @@ class EventListener implements Listener{
                     unset($this->plugin->data["bounty"][strtolower($args[1])]);
                     $this->plugin->save();
                     if($this->plugin->config["bounty_rem_success"] !== "") $sender->sendMessage($this->colour($this->plugin->config["bounty_rem_success"]));
-                    if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
-                        $this->updateScoreboards();
-                    }
                     break;
 
                 case 'leaderboard':
@@ -321,8 +306,6 @@ class EventListener implements Listener{
                             $sender->sendMessage($prefix);
                             $sender->sendMessage($msg);
                             break;
-                        case "scoreboard":
-                            break;
                         default:
                             $sender->sendMessage("Not a valid option in config.yml, try using 'form' option.");
                     }
@@ -337,9 +320,6 @@ class EventListener implements Listener{
 
     public function onSpawn(PlayerJoinEvent $event){
         $player = $event->getPlayer();
-        if($this->plugin->config["leaderboard"] === true && $this->plugin->config["leaderboard_format"] === "scoreboard"){
-            $this->sendScoreboard($player);
-        }
         if(isset($this->plugin->data["bounty"][strtolower($player->getName())])){
             $msg = str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->config["bounty_player_join"]));
             if($msg === "") return;
@@ -362,8 +342,8 @@ class EventListener implements Listener{
 
     public function onDeath(PlayerDeathEvent $event){
         $cause = $event->getEntity()->getLastDamageCause();
-        if ($cause->getCause() != 1) return; //not killed by entity
-        if (!$cause instanceof EntityDamageByEntityEvent) return; //double check of above check.
+        if ($cause->getCause() != 1) return false; //not killed by entity
+        if (!$cause instanceof EntityDamageByEntityEvent) return false; //double check of above check.
         if ($cause->getDamager() instanceof Player) {
             $killer = $cause->getDamager();
             if(isset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())])){
@@ -378,77 +358,15 @@ class EventListener implements Listener{
 
                 if($this->plugin->config["bounty_claim_success"] !== "") $killer->sendMessage($this->colour(str_replace('{AMOUNT}', $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())],str_replace('{PLAYER}',$event->getPlayer()->getLowerCaseName(),$this->plugin->config["bounty_claim_success"]))));
                 foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                    $msg = str_replace("{PLAYER}", $event->getPlayer()->getName(), str_replace("{SENDER}", $killer->getName(), str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())] , $this->plugin->config["bounty_claim_success"])));
+                    $msg = str_replace("{PLAYER}", $event->getPlayer()->getName(), str_replace("{SENDER}", $killer->getName(), str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())] , $this->plugin->config["bounty_claim_broadcast"])));
                     if($msg !== "") $player->sendMessage($this->colour($msg));
                 }
                 $this->plugin->economy->addMoney($killer->getName(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
                 unset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
                 $this->plugin->save();
-                if($this->plugin->config["leaderboard"] == true and $this->plugin->config["leaderboard_format"] == "scoreboard"){
-                    $this->updateScoreboards();
-                }
             }
         }
-    }
-
-    public function sendScoreboard(Player $player){
-        $pk = new SetDisplayObjectivePacket();
-		$pk->displaySlot = "sidebar";
-		$pk->objectiveName = $player->getLowerCaseName();
-		$pk->displayName = C::BOLD.C::GOLD." Bounty TOP 10 ";
-		$pk->criteriaName = "dummy";
-		$pk->sortOrder = 0;
-		$player->sendDataPacket($pk);
-
-        $pk = new SetScorePacket();
-        $pk->type = $pk::TYPE_CHANGE;
-            
-        if(count($this->plugin->data['bounty']) === 0){
-            $pk2 = new ScorePacketEntry();
-            $pk2->objectiveName = $player->getLowerCaseName();
-            $pk2->type = 3;
-            $pk2->customName = C::RED."No one has a bounty... Yet";
-            $pk2->score = 0;
-            $pk2->scoreboardId = 0;
-                
-            $pk->entries[] = $pk2;
-        } else{
-            $pk2 = new ScorePacketEntry();
-            $pk2->objectiveName = $player->getLowerCaseName();
-            $pk2->type = 3;
-            $pk2->customName = "";
-            $pk2->score = 0;
-            $pk2->scoreboardId = 0;
-            $pk->entries[] = $pk2;
-                
-            $lb = $this->plugin->data['bounty'];
-            asort($lb);
-            $lb = array_reverse($lb);
-            $count = 1;
-            foreach($lb as $name => $amount){
-                if($count >= 11) continue;
-                $pk2 = new ScorePacketEntry();
-                $pk2->objectiveName = $player->getLowerCaseName();
-                $pk2->type = 3;
-                $pk2->customName = C::AQUA." ".$name." : $".$amount;
-                $pk2->score = $count;
-                $pk2->scoreboardId = $count;
-                    
-                $pk->entries[] = $pk2;
-                $count += 1;
-            }
-        }
-
-        $player->sendDataPacket($pk);
-    }
-
-    public function updateScoreboards(){
-        foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-            $pk = new RemoveObjectivePacket();
-            $pk->objectiveName = $player->getLowerCaseName();  //edit lines doesnt want to play ball so hacky fix around it.
-            $player->sendDataPacket($pk);
-            $this->sendScoreboard($player);
-        }
+        return false;
     }
 
     public function colour(string $msg) : string {

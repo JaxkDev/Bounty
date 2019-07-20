@@ -30,7 +30,7 @@ use pocketmine\Player;
 
 use Jack\Bounty\baseForm;
 
-//This form has to extend pocketmines Form :{
+//This form has to extend pocketmine's Form :{
 
 class Form extends baseForm{
 

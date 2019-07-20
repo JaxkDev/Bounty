@@ -1,7 +1,7 @@
 ---
 name: Bounty
 author: Jackthehaxk21
-version: 1.1.1
+version: 1.1.2
 api:
 - 3.7.0
 main: Jack\Bounty\Main
@@ -10,16 +10,19 @@ depend: [EconomyAPI]
 commands:
   bounty:
     description: "Bounty command"
-    permission: bounty
+    permission: bounty.cmd
     usage: /bounty help
 
 permissions:
   bounty:
-    default: true
-    description: "Allows usage of /bounty"
+    default: false
+    description: "Bounty permissions."
     children:
+      bounty.cmd:
+        description: "Allows general usage of /bounty"
+        default: true
       bounty.new:
-        descripyion: "Allows player to add bountys."
+        description: "Allows player to add bountys."
         default: true
       bounty.rem:
         description: "Allows player to remove bountys."
