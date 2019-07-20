@@ -39,7 +39,7 @@ class Main extends PluginBase implements Listener{
     private static $instance;
 
     public const DATA_VER = 1;
-    public const CONFIG_VER = 2;
+    public const CONFIG_VER = 1;
 
     public $economy;
     public $dataFile;
@@ -61,7 +61,7 @@ class Main extends PluginBase implements Listener{
         $this->saveResource("config.yml");
         $this->saveResource("help.txt");
         $this->configFile = new Config($this->getDataFolder() . "config.yml", Config::YAML);
-        $this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => [], "floating_topwanted" => []]);
+        $this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
         $this->data = $this->dataFile->getAll();
         $this->config = $this->configFile->getAll();
 		if(!array_key_exists("version", $this->config) or $this->config["version"] !== $this::CONFIG_VER){
@@ -95,7 +95,7 @@ class Main extends PluginBase implements Listener{
         return $this->data['bounty'][strtolower($nick)];
     }
 
-    public function save(bool $data = true, bool $cfg = false){
+    public function save($data = true, $cfg = false){
 		if($data === true){
             $this->dataFile->setAll($this->data);
 		    $this->dataFile->save();
@@ -109,10 +109,6 @@ class Main extends PluginBase implements Listener{
 	public function updateData() : void{
 	    //This is very unlikely to change more then once or twice a year.
 
-        if(!array_key_exists("floating_topwanted", $this->data)){
-            $this->data["floating_topwanted"] = [];
-        }
-
         $this->data["version"] = $this::DATA_VER;
 
         $this->save(true, false);
@@ -120,13 +116,6 @@ class Main extends PluginBase implements Listener{
 
 	public function updateConfig() : void{
 	    //This is going to be very long if not controlled... (todo either support only one version break, or find a new method possibly compare keys and then set default values.)
-
-        if(!array_key_exists("floating_topwanted",$this->config)){
-            $this->config["floating_topwanted"] = true;
-        }
-        if(!array_key_exists("floating_topwanted_format", $this->config)){
-            $this->config["floating_topwanted_format"] = "{GOLD}{NUMBER}. {GREEN}{WANTED} : {RED}\${AMOUNT}";
-        }
 
         $this->config["version"] = $this::CONFIG_VER;
 

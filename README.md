@@ -9,8 +9,6 @@ Made by Jaxk (aka Jackthehack), thank you to the community in the above discord 
 - /bounty help/ver/credits
 - /bounty new/add name amount
 - /bounty list page
-- /bounty leaderboard/list
-- /bounty leaderboard setpos (set position of floating text leaderboard if enabled in config.yml)
 
 ### Events:
 Only bother looking here if you know what your doing :)
@@ -26,3 +24,4 @@ API Functions:
 - Main::getInstance()
 - Main->hasBounty(string $name): bool
 - Main->getBounty(string $nick): int
+- *More coming soon.*
