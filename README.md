@@ -3,7 +3,7 @@
 # Bounty
 
 A highly customized plugin to bring bounty's to PMMP (only pmmp, no forks/spoons)
-Made by Jaxk (aka Jackthehack), thank you to the community in the above discord for providing soo many suggestions !
+Made by JaxkDev, thank you to the community in the above discord for providing soo many suggestions !
 
 ### Usage:
 - /bounty help/ver/credits

@@ -19,7 +19,7 @@
 *
 *   Twitter :: @JaxkDev
 *   Discord :: Jackthehaxk21#8860
-*   Email   :: gangnam253@gmail.com
+*   Email   :: JaxkDev@gmail.com
 */
 
 /** @noinspection PhpUndefinedMethodInspection */

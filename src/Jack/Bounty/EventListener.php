@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019 Jackthehack21 (Jack Honour/Jackthehaxk21/JaxkDev)
+*   Copyright (C) 2019 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 *
 *   Twitter :: @JaxkDev
 *   Discord :: Jackthehaxk21#8860
-*   Email   :: gangnam253@gmail.com
+*   Email   :: JaxkDev@gmail.com
 */
 
 declare(strict_types=1);
@@ -106,7 +106,7 @@ class EventListener implements Listener{
                     }
                 case 'credits':
                     $sender->sendMessage(C::GOLD."=== Credits ===");
-                    $sender->sendMessage(C::GREEN."Developer: ".C::RED."Jackthehack21");
+                    $sender->sendMessage(C::GREEN."Developer: ".C::RED."JaxkDev");
                     return true;
                 case 'version':
                 case 'ver':
