@@ -334,14 +334,22 @@ class EventListener implements Listener{
     }
 
     public function onDeath(PlayerDeathEvent $event){
-		//TODO check projectile owning entity #15
+		//TODO test projectile owning entity #15
+		$killer = null;
         $cause = $event->getEntity()->getLastDamageCause();
+		if ($cause === null) return false; //*shrug* - issues have arised when external plugins create deaths.
         if ($cause->getCause() != 1) return false; //not killed by entity
         if (!$cause instanceof EntityDamageByEntityEvent) return false; //double check of above check.
         if ($cause->getDamager() instanceof Player) {
             $killer = $cause->getDamager();
+		}
+		if ($cause->getDamager() instanceof Entity){
+			if ($cause->getDamager()->getOwningEntity() instanceof Player){
+				$killer = $cause->getDamager()->getOwningEntity();
+			}
+		}
+		if ($killer !== null){
             if(isset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())])){
-
                 //events:
                 $ev = new BountyClaimEvent($this->plugin, $killer, $event->getPlayer(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
 			    $this->plugin->getServer()->getPluginManager()->callEvent($ev);
