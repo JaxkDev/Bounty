@@ -224,7 +224,7 @@ class EventListener implements Listener{
                     $this->plugin->save();
                     if($this->plugin->config['bounty_new_success'] !== "") $sender->sendMessage($this->colour($this->plugin->config['bounty_new_success']));
                     foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                        $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->config["bounty_new_broadcast"]))));
+                        $msg = str_replace('{SENDER}', $sender->getName(), str_replace((string)$amount, $amount,str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->config["bounty_new_broadcast"]))));
                         if($msg !== "") $player->sendMessage($msg);
                     }
                     return true;
