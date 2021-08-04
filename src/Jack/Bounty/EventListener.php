@@ -158,7 +158,7 @@ class EventListener implements Listener{
                     if($this->plugin->config["bounty_limit_enforced"] === true){
                         $min = $this->plugin->config["bounty_min"];
                         $max = $this->plugin->config["bounty_max"];
-                        $msg = str_replace("{MAX}", $max, str_replace("{MIN}", $min, $this->colour($this->plugin->config["bounty_new_fundlimit"])));
+                        $msg = str_replace("{MAX}", "$max", str_replace("{MIN}", "$min", $this->colour($this->plugin->config["bounty_new_fundlimit"])));
                         if($amount > $max || $amount < $min){
                             if($msg !== "") $sender->sendMessage($msg);
                             return true;
@@ -224,7 +224,7 @@ class EventListener implements Listener{
                     $this->plugin->save();
                     if($this->plugin->config['bounty_new_success'] !== "") $sender->sendMessage($this->colour($this->plugin->config['bounty_new_success']));
                     foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                        $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->config["bounty_new_broadcast"]))));
+                        $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', "$amount",str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->config["bounty_new_broadcast"]))));
                         if($msg !== "") $player->sendMessage($msg);
                     }
                     return true;
@@ -321,7 +321,7 @@ class EventListener implements Listener{
     public function onSpawn(PlayerJoinEvent $event){
         $player = $event->getPlayer();
         if(isset($this->plugin->data["bounty"][strtolower($player->getName())])){
-            $msg = str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->config["bounty_player_join"]));
+            $msg = str_replace("{AMOUNT}", (string) $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(),(string) $this->plugin->config["bounty_player_join"]));
             if($msg === "") return;
             foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
                 $player->sendMessage($this->colour($msg));
@@ -332,7 +332,7 @@ class EventListener implements Listener{
     public function onQuit(PlayerQuitEvent $event){
         $player = $event->getPlayer();
         if(isset($this->plugin->data["bounty"][strtolower($player->getName())])){
-            $msg = str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->config["bounty_player_quit"]));
+            $msg = str_replace("{AMOUNT}", (string)($this->plugin->data["bounty"][strtolower($player->getName())]), str_replace("{PLAYER}", $player->getName(), $this->plugin->config["bounty_player_quit"]));
             if($msg === "") return;
             foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
                 $player->sendMessage($this->colour($msg));
