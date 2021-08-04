@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019 Jackthehack21 (Jack Honour/Jackthehaxk21/JaxkDev)
+*   Copyright (C) 2019-2021 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: Jackthehaxk21#8860
-*   Email   :: gangnam253@gmail.com
+*   Discord :: JaxkDev#2698
+*   Email   :: JaxkDev@gmail.com
 */
 
 declare(strict_types=1);
@@ -28,12 +28,10 @@ namespace Jack\Bounty\Events;
 
 use pocketmine\event\Cancellable;
 use pocketmine\event\plugin\PluginEvent;
-
 use Jack\Bounty\Main;
 
 abstract class BountyEvent extends PluginEvent implements Cancellable{
     public function __construct(Main $plugin){
         parent::__construct($plugin);
     }
-    
 }

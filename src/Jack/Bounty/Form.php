@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019 Jackthehack21 (Jack Honour/Jackthehaxk21/JaxkDev)
+*   Copyright (C) 2019-2021 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: Jackthehaxk21#8860
-*   Email   :: gangnam253@gmail.com
+*   Discord :: JaxkDev#2698
+*   Email   :: JaxkDev@gmail.com
 */
 
 declare(strict_types=1);
@@ -27,16 +27,15 @@ declare(strict_types=1);
 namespace Jack\Bounty;
 
 use pocketmine\Player;
+use pocketmine\form\Form as FormClass;
 
-use Jack\Bounty\baseForm;
+class Form implements FormClass{
 
-//This form has to extend pocketmine's Form :{
+    public array $data = [];
 
-class Form extends baseForm{
+    public function handleResponse(Player $player, $data): void{}
 
-    public function handleResponse(Player $player, $data): void{
-        //do nothing.
-        return;
+    public function jsonSerialize(): array{
+        return $this->data;
     }
-
 }

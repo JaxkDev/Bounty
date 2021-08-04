@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019-2020 JaxkDev
+*   Copyright (C) 2019-2021 JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -18,48 +18,40 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *
 *   Twitter :: @JaxkDev
-*   Discord :: JaxkDev#8860
+*   Discord :: JaxkDev#2698
 *   Email   :: JaxkDev@gmail.com
 */
-
-/** @noinspection PhpUndefinedMethodInspection */
 
 declare(strict_types=1);
 namespace Jack\Bounty;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
-
 use pocketmine\utils\Config;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
 
 class Main extends PluginBase implements Listener{
-    private static $instance;
 
     public const DATA_VER = 1;
     public const CONFIG_VER = 2;
 
     public $economy;
     public $dataFile;
-    public $configFile;
     public $data;
-    public $config;
+    public $configd;
 
-    public $EventListener;
+    public EventListener $eventListener;
 	
 	public function onEnable(){
-		self::$instance = $this;
 		$this->economy = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
-		$this->saveResource("config.yml");
 		$this->saveResource("help.txt");
-		$this->configFile = new Config($this->getDataFolder() . "config.yml", Config::YAML);
 		//TODO SQL
 		$this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
 		$this->data = $this->dataFile->getAll();
-		$this->config = $this->configFile->getAll();
-		if(!array_key_exists("version", $this->config) or $this->config["version"] !== $this::CONFIG_VER){
+		$this->configd = $this->getConfig()->getAll();
+		if(!array_key_exists("version", $this->configd) or $this->configd["version"] !== $this::CONFIG_VER){
 			$this->updateConfig();
 			$this->getLogger()->debug("Updated config to version ".$this::CONFIG_VER);
 		}
@@ -67,32 +59,29 @@ class Main extends PluginBase implements Listener{
 			$this->updateData();
 			$this->getLogger()->debug("Updated data to version ".$this::DATA_VER);
 		}
-		if(strtolower($this->config["listType"]) !== "blacklist" && strtolower($this->config["listType"]) !== "whitelist"){
-			$this->getLogger()->error("Unknown listType '{$this->config["listType"]}' reset to default 'Blacklist'");
-			$this->config["listType"] = "Blacklist";
+		if(strtolower($this->configd["listType"]) !== "blacklist" && strtolower($this->configd["listType"]) !== "whitelist"){
+			$this->getLogger()->error("Unknown listType '{$this->configd["listType"]}' reset to default 'Blacklist'");
+			$this->configd["listType"] = "Blacklist";
 			$this->save(false, true);
 		}
-		$this->EventListener = new EventListener($this);
+		$this->eventListener = new EventListener($this);
 		$this->getServer()->getPluginManager()->registerEvents($this->EventListener, $this);
-		return;
     }
     
-    public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
-        return $this->EventListener->handleCommand($sender, $cmd, $label, $args);
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
+        return $this->eventListener->handleCommand($sender, $command, $label, $args);
     }
 
-    public function hasBounty(string $nick) : bool{
-        if(isset($this->data['bounty'][strtolower($nick)])){
-            return true;
-        }
-        return false;
+    public function hasBounty(string $username): bool{
+        return isset($this->data['bounty'][strtolower($username)]);
     }
 
-    public function getBounty(string $nick) : int{
-        if(!isset($this->data['bounty'][strtolower($nick)])){
-            return -1;
-        }
-        return $this->data['bounty'][strtolower($nick)];
+    public function getBounty(string $username): ?int{
+        return $this->data['bounty'][strtolower($username)]??null;
+    }
+
+    public function setBounty(string $username, int $amount): void{
+	    $this->data['bounty'][strtolower($username)] = $amount;
     }
 
     public function save($data = true, $cfg = false){
@@ -101,8 +90,8 @@ class Main extends PluginBase implements Listener{
 		    $this->dataFile->save();
         }
         if($cfg === true){
-            $this->configFile->setAll($this->config);
-            $this->configFile->save();
+            $this->getConfig()->setAll($this->configd);
+            $this->getConfig()->save();
         }
 	}
 
@@ -117,15 +106,10 @@ class Main extends PluginBase implements Listener{
 	public function updateConfig() : void{
 	    //This is going to be very long if not controlled... (todo either support only one version break, or find a new method possibly compare keys and then set default values.)
 
-        $this->config["version"] = $this::CONFIG_VER;
-		$this->config["listType"] = "blacklist";
-		$this->config["list"] = [];
+        $this->configd["version"] = $this::CONFIG_VER;
+		$this->configd["listType"] = "blacklist";
+		$this->configd["list"] = [];
 
         $this->save(false, true);
     }
-	
-    public static function getInstance() : self{
-	    return self::$instance;
-    }
-
 }

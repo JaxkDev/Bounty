@@ -3,7 +3,7 @@
 # Bounty
 
 A highly customized plugin to bring bounty's to PMMP (only pmmp, no forks/spoons)
-Made by Jaxk (aka Jackthehack), thank you to the community in the above discord for providing soo many suggestions !
+Made by JaxkDev, thank you to the community in the above discord for providing soo many suggestions !
 
 ### Usage:
 - /bounty help/ver/credits
@@ -11,7 +11,7 @@ Made by Jaxk (aka Jackthehack), thank you to the community in the above discord 
 - /bounty list page
 
 ### Events:
-Only bother looking here if you know what your doing :)
+Only bother looking here if you know what you're doing :)
 
 All events are cancellable and extend BountyEvent.
 - BountyAddEvent
@@ -21,7 +21,6 @@ All events are cancellable and extend BountyEvent.
 
 ### API:
 API Functions:
-- Main::getInstance()
-- Main->hasBounty(string $name): bool
-- Main->getBounty(string $nick): int
-- *More coming soon.*
+- Main->hasBounty(string $username): bool
+- Main->getBounty(string $username): int
+- Main->setBounty(string $username, int $amount): void
