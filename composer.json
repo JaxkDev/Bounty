@@ -6,8 +6,26 @@
         "phpstan/phpstan": "^1.10",
         "phpstan/phpstan-deprecation-rules": "^1.1",
         "phpstan/phpstan-strict-rules": "^1.5",
-        "pocketmine/pocketmine-mp": "^5"
+        "pocketmine/pocketmine-mp": "^5",
+        "cooldogepm/bedrockeconomy": "dev-pm5"
     },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "cooldogepm/bedrockeconomy",
+                "version": "dev-pm5",
+                "source": {
+                    "url": "https://github.com/cooldogepm/BedrockEconomy",
+                    "type": "git",
+                    "reference": "origin/pm5"
+                },
+                "autoload": {
+                    "psr-4": { "": "src/" }
+                }
+            }
+        }
+    ],
     "license": "GPL-3.0",
     "authors": [
         {

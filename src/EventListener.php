@@ -134,7 +134,6 @@ class EventListener implements Listener{
                         if($msg !== "") $sender->sendMessage($this->colour($msg));
                         return true;
                     }
-                    $mon = $this->plugin->economy->myMoney($sender->getName());
 
                     $amount = intval($args[2]);
 
@@ -167,20 +166,22 @@ class EventListener implements Listener{
 
                             $amount = $event->getAmount();
 
-                            if($amount > $mon){
-                                $msg = $this->plugin->configd["bounty_multiple_funds"];
-                                if($msg !== "") $sender->sendMessage($this->colour($msg));
-                                return true;
-                            }
-                            $this->plugin->economy->reduceMoney($sender->getName(), $amount);
-                            $this->plugin->data['bounty'][strtolower($noob->getName())] = $this->plugin->data['bounty'][strtolower($noob->getName())]+$amount;
-                            $this->plugin->save();
-                            if($this->plugin->configd['bounty_multiple_success'] !== "") $sender->sendMessage($this->colour($this->plugin->configd['bounty_multiple_success']));
-                            foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                                /** @var string $msg */
-                                $msg = str_replace("{TOTAL}", (string)$this->plugin->data['bounty'][strtolower($noob->getName())], str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', (string)$amount, str_replace('{PLAYER}', $noob->getName(), $this->colour($this->plugin->configd["bounty_multiple_broadcast"])))));
-                                if($msg !== "") $player->sendMessage($msg);
-                            }
+                            $this->plugin->economy->deduct($sender->getName(), $amount)->onCompletion(
+                                function() use ($sender, $noob, $amount){
+                                    $this->plugin->data['bounty'][strtolower($noob->getName())] = $this->plugin->data['bounty'][strtolower($noob->getName())]+$amount;
+                                    $this->plugin->save();
+                                    if($this->plugin->configd['bounty_multiple_success'] !== "") $sender->sendMessage($this->colour($this->plugin->configd['bounty_multiple_success']));
+                                    foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                                        /** @var string $msg */
+                                        $msg = str_replace("{TOTAL}", (string)$this->plugin->data['bounty'][strtolower($noob->getName())], str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', (string)$amount, str_replace('{PLAYER}', $noob->getName(), $this->colour($this->plugin->configd["bounty_multiple_broadcast"])))));
+                                        if($msg !== "") $player->sendMessage($msg);
+                                    }
+                                },
+                                function() use ($sender){
+                                    $msg = $this->plugin->configd["bounty_multiple_funds"];
+                                    if($msg !== "") $sender->sendMessage($this->colour($msg));
+                                }
+                            );
                         }  else {
                             //already has bounty, and multiple disabled.
                             $msg = $this->plugin->configd["bounty_new_already"];
@@ -202,19 +203,18 @@ class EventListener implements Listener{
 
                     $amount = $event->getAmount();
 
-                    if($amount > $mon){
+                    $this->plugin->economy->deduct($sender->getName(), $amount)->onCompletion(function() use ($sender, $noob, $amount){
+                        $this->plugin->data['bounty'][strtolower($noob->getName())] = $this->plugin->data['bounty'][strtolower($noob->getName())]+$amount;
+                        $this->plugin->save();
+                        if($this->plugin->configd['bounty_new_success'] !== "") $sender->sendMessage($this->colour($this->plugin->configd['bounty_new_success']));
+                        foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                            $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', (string)$amount, str_replace('{PLAYER}', $noob->getName(), $this->colour($this->plugin->configd["bounty_new_broadcast"]))));
+                            if($msg !== "") $player->sendMessage($msg);
+                        }
+                    }, function() use ($sender){
                         $msg = $this->plugin->configd["bounty_new_funds"];
                         if($msg !== "") $sender->sendMessage($this->colour($msg));
-                        return true;
-                    }
-                    $this->plugin->economy->reduceMoney($sender->getName(), $amount);
-                    $this->plugin->data['bounty'][strtolower($noob->getName())] = $amount;
-                    $this->plugin->save();
-                    if($this->plugin->configd['bounty_new_success'] !== "") $sender->sendMessage($this->colour($this->plugin->configd['bounty_new_success']));
-                    foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                        $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', (string)$amount, str_replace('{PLAYER}', $noob->getName(), $this->colour($this->plugin->configd["bounty_new_broadcast"]))));
-                        if($msg !== "") $player->sendMessage($msg);
-                    }
+                    });
                     return true;
 
                 case "rem":
@@ -356,19 +356,31 @@ class EventListener implements Listener{
 				    return;
                 }
 
-                if($this->plugin->configd["bounty_claim_success"] !== ""){
-                    /** @var string $msg */
-                    $msg = str_replace('{AMOUNT}', (string)$this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())], str_replace('{PLAYER}', $event->getPlayer()->getName(), $this->plugin->configd["bounty_claim_success"]));
-                    $killer->sendMessage($this->colour($msg));
-                }
-                foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                    /** @var string $msg */
-                    $msg = str_replace("{PLAYER}", $event->getPlayer()->getName(), str_replace("{SENDER}", $killer->getName(), str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())], $this->plugin->configd["bounty_claim_broadcast"])));
-                    if($msg !== "") $player->sendMessage($this->colour($msg));
-                }
-                $this->plugin->economy->addMoney($killer->getName(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
-                unset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
-                $this->plugin->save();
+                $this->plugin->economy->add($killer->getName(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())])->onCompletion(
+                    function() use ($event, $killer){
+                        if($this->plugin->configd["bounty_claim_success"] !== ""){
+                            /** @var string $msg */
+                            $msg = str_replace('{AMOUNT}', (string)$this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())], str_replace('{PLAYER}', $event->getPlayer()->getName(), $this->plugin->configd["bounty_claim_success"]));
+                            $killer->sendMessage($this->colour($msg));
+                        }
+                        foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
+                            /** @var string $msg */
+                            $msg = str_replace("{PLAYER}", $event->getPlayer()->getName(), str_replace("{SENDER}", $killer->getName(), str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())], $this->plugin->configd["bounty_claim_broadcast"])));
+                            if($msg !== "") $player->sendMessage($this->colour($msg));
+                        }
+
+                        unset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
+                        $this->plugin->save();
+                    },
+                    function() use ($event, $killer){
+                        if($this->plugin->configd["bounty_claim_failed"] !== ""){
+                            /** @var string $msg */
+                            $msg = str_replace('{AMOUNT}', (string)$this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())], str_replace('{PLAYER}', $event->getPlayer()->getName(), $this->plugin->configd["bounty_claim_failed"]));
+                            $killer->sendMessage($this->colour($msg));
+                        }
+                        //TODO Retry??? idk
+                    }
+                );
             }
         }
     }

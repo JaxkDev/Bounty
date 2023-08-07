@@ -25,6 +25,7 @@ bounty_rem_notfound: "{RED}A player with that name does not have a bounty"
 bounty_claim_broadcast: "{GOLD}{SENDER} claimed the bounty on {PLAYER}’s head, worth ${AMOUNT} !"
 bounty_claim_success: "{GREEN}Nice one, you claimed the bounty on {PLAYER} worth {AMOUNT}"
 bounty_claim_cancelled: "{RED}Bounty claim was cancelled"
+bounty_claim_failed: "{RED}Bounty couldn't be claimed, due to issues with your bank."
 
 bounty_player_join: "{AQUA}{PLAYER} Has joined the server, kill the player to get ${AMOUNT}"
 bounty_player_quit: ""

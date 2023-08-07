@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7b491fb537f72cb8573423d78fbb005b",
+    "content-hash": "ddf9f6aa757bf103ae186b3c7c6cbcf5",
     "packages": [],
     "packages-dev": [
         {
@@ -120,6 +120,21 @@
                 }
             ],
             "time": "2023-01-15T23:15:59+00:00"
+        },
+        {
+            "name": "cooldogepm/bedrockeconomy",
+            "version": "dev-pm5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cooldogepm/BedrockEconomy",
+                "reference": "origin/pm5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": "src/"
+                }
+            }
         },
         {
             "name": "phpstan/phpstan",
@@ -1409,7 +1424,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "cooldogepm/bedrockeconomy": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

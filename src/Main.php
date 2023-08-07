@@ -24,6 +24,8 @@
 
 namespace JaxkDev\Bounty;
 
+use cooldogedev\BedrockEconomy\api\BedrockEconomyAPI;
+use cooldogedev\BedrockEconomy\api\version\BetaBEAPI;
 use Exception;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
@@ -37,7 +39,7 @@ class Main extends PluginBase implements Listener{
     public const DATA_VER = 1;
     public const CONFIG_VER = 2;
 
-    //public $economy;
+    public BetaBEAPI $economy;
     public Config $dataFile;
     public array $data;
     public array $configd;
@@ -45,7 +47,7 @@ class Main extends PluginBase implements Listener{
     public EventListener $eventListener;
 	
 	public function onEnable(): void{
-		//$this->economy = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
+        $this->economy = BedrockEconomyAPI::beta();
 		$this->saveResource("help.txt", true);
 		//TODO SQL
 		$this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
