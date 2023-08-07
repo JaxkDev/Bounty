@@ -24,6 +24,7 @@
 
 namespace JaxkDev\Bounty;
 
+use Exception;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
 use pocketmine\utils\Config;
@@ -36,10 +37,10 @@ class Main extends PluginBase implements Listener{
     public const DATA_VER = 1;
     public const CONFIG_VER = 2;
 
-    public $economy;
-    public $dataFile;
-    public $data;
-    public $configd;
+    //public $economy;
+    public Config $dataFile;
+    public array $data;
+    public array $configd;
 
     public EventListener $eventListener;
 	
@@ -83,14 +84,22 @@ class Main extends PluginBase implements Listener{
 	    $this->data['bounty'][strtolower($username)] = $amount;
     }
 
-    public function save($data = true, $cfg = false){
+    public function save(bool $data = true, bool $cfg = false): void{
 		if($data === true){
             $this->dataFile->setAll($this->data);
-		    $this->dataFile->save();
+            try{
+                $this->dataFile->save();
+            }catch(Exception $e){
+                $this->getLogger()->error("Failed to save data, Exception: ".$e->getMessage());
+            }
         }
         if($cfg === true){
             $this->getConfig()->setAll($this->configd);
-            $this->getConfig()->save();
+            try{
+                $this->getConfig()->save();
+            }catch(Exception $e){
+                $this->getLogger()->error("Failed to save config, Exception: ".$e->getMessage());
+            }
         }
 	}
 
@@ -99,7 +108,7 @@ class Main extends PluginBase implements Listener{
 
         $this->data["version"] = $this::DATA_VER;
 
-        $this->save(true, false);
+        $this->save();
     }
 
 	public function updateConfig() : void{

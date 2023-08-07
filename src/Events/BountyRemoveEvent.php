@@ -32,18 +32,11 @@ class BountyRemoveEvent extends BountyEvent{
 
     private Player $player;
 
-    /** @var OfflinePlayer|Player */
-    private $wanted_player;
+    private OfflinePlayer|Player $wanted_player;
 
     private int $amount;
 
-    /**
-     * @param Main $plugin
-     * @param Player $player
-     * @param OfflinePlayer|Player $wanted_player
-     * @param int $amount
-     */
-    public function __construct(Main $plugin, Player $player, $wanted_player, int $amount){
+    public function __construct(Main $plugin, Player $player, Player|OfflinePlayer $wanted_player, int $amount){
         parent::__construct($plugin);
         $this->player = $player;
         $this->wanted_player = $wanted_player;
@@ -54,10 +47,7 @@ class BountyRemoveEvent extends BountyEvent{
         return $this->player;
     }
 
-    /**
-     * @return OfflinePlayer|Player
-     */
-    public function getWantedPlayer(){
+    public function getWantedPlayer(): Player|OfflinePlayer{
         return $this->wanted_player;
     }
 

@@ -24,7 +24,7 @@
 
 namespace JaxkDev\Bounty\Events;
 
-use pocketmine\OfflinePlayer;
+use pocketmine\player\OfflinePlayer;
 use pocketmine\player\Player;
 use JaxkDev\Bounty\Main;
 
@@ -32,18 +32,11 @@ class BountyClaimEvent extends BountyEvent{
 
     private Player $claimer;
 
-    /** @var OfflinePlayer|Player */
-    private $wanted_player;
+    private OfflinePlayer|Player $wanted_player;
 
     private int $amount;
 
-    /**
-     * @param Main $plugin
-     * @param Player $claimer
-     * @param OfflinePlayer|Player $wanted_player
-     * @param int $amount
-     */
-    public function __construct(Main $plugin, Player $claimer, $wanted_player, int $amount){
+    public function __construct(Main $plugin, Player $claimer, Player|OfflinePlayer $wanted_player, int $amount){
         parent::__construct($plugin);
         $this->claimer = $claimer;
         $this->wanted_player = $wanted_player;
@@ -54,10 +47,7 @@ class BountyClaimEvent extends BountyEvent{
         return $this->claimer;
     }
 
-    /**
-     * @return OfflinePlayer|Player
-     */
-    public function getWantedPlayer(){
+    public function getWantedPlayer(): Player|OfflinePlayer{
         return $this->wanted_player;
     }
 

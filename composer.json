@@ -6,7 +6,7 @@
         "phpstan/phpstan": "^1.10",
         "phpstan/phpstan-deprecation-rules": "^1.1",
         "phpstan/phpstan-strict-rules": "^1.5",
-        "pocketmine/pocketmine-mp": "^5.4"
+        "pocketmine/pocketmine-mp": "^5"
     },
     "license": "GPL-3.0",
     "authors": [

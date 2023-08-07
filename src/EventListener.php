@@ -47,6 +47,7 @@ class EventListener implements Listener{
         $this->plugin = $plugin;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function handleCommand(CommandSender $sender, Command $cmd, string $label, array $args): bool{
         if($cmd->getName() == "bounty"){
             if(!isset($args[0])){
@@ -123,7 +124,7 @@ class EventListener implements Listener{
                         break;
                     }
                     $noob = $this->plugin->getServer()->getOfflinePlayer($args[1]);
-                    if(!is_numeric($noob->getFirstPlayed())){
+                    if($noob?->getFirstPlayed() === null){
                         $msg = $this->plugin->configd["bounty_new_notfound"];
                         if($msg !== "") $sender->sendMessage($this->colour($msg));
                         return true;
@@ -176,7 +177,8 @@ class EventListener implements Listener{
                             $this->plugin->save();
                             if($this->plugin->configd['bounty_multiple_success'] !== "") $sender->sendMessage($this->colour($this->plugin->configd['bounty_multiple_success']));
                             foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                                $msg = str_replace("{TOTAL}", $this->plugin->data['bounty'][strtolower($noob->getName())], str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->configd["bounty_multiple_broadcast"])))));
+                                /** @var string $msg */
+                                $msg = str_replace("{TOTAL}", (string)$this->plugin->data['bounty'][strtolower($noob->getName())], str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', (string)$amount, str_replace('{PLAYER}', $noob->getName(), $this->colour($this->plugin->configd["bounty_multiple_broadcast"])))));
                                 if($msg !== "") $player->sendMessage($msg);
                             }
                         }  else {
@@ -210,7 +212,7 @@ class EventListener implements Listener{
                     $this->plugin->save();
                     if($this->plugin->configd['bounty_new_success'] !== "") $sender->sendMessage($this->colour($this->plugin->configd['bounty_new_success']));
                     foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                        $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', $amount,str_replace('{PLAYER}',$noob->getName(),$this->colour($this->plugin->configd["bounty_new_broadcast"]))));
+                        $msg = str_replace('{SENDER}', $sender->getName(), str_replace('{AMOUNT}', (string)$amount, str_replace('{PLAYER}', $noob->getName(), $this->colour($this->plugin->configd["bounty_new_broadcast"]))));
                         if($msg !== "") $player->sendMessage($msg);
                     }
                     return true;
@@ -308,10 +310,11 @@ class EventListener implements Listener{
     public function onSpawn(PlayerJoinEvent $event): void{
         $player = $event->getPlayer();
         if(isset($this->plugin->data["bounty"][strtolower($player->getName())])){
-            $msg = str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->configd["bounty_player_join"]));
-            if($msg === "") return;
-            foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                $player->sendMessage($this->colour($msg));
+            /** @var string $msg */
+            $msg = str_replace("{AMOUNT}", (string)$this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->configd["bounty_player_join"]));
+            if(trim($msg) === "") return;
+            foreach($this->plugin->getServer()->getOnlinePlayers() as $p){
+                $p->sendMessage($this->colour(trim($msg)));
             }
         }
     }
@@ -319,10 +322,11 @@ class EventListener implements Listener{
     public function onQuit(PlayerQuitEvent $event): void{
         $player = $event->getPlayer();
         if(isset($this->plugin->data["bounty"][strtolower($player->getName())])){
-            $msg = str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->configd["bounty_player_quit"]));
+            /** @var string $msg */
+            $msg = str_replace("{AMOUNT}", (string)$this->plugin->data["bounty"][strtolower($player->getName())], str_replace("{PLAYER}", $player->getName(), $this->plugin->configd["bounty_player_quit"]));
             if($msg === "") return;
-            foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                $player->sendMessage($this->colour($msg));
+            foreach($this->plugin->getServer()->getOnlinePlayers() as $p){
+                $p->sendMessage($this->colour($msg));
             }
         }
     }
@@ -331,9 +335,9 @@ class EventListener implements Listener{
 		//TODO test projectile owning entity #15
 		$killer = null;
         $cause = $event->getEntity()->getLastDamageCause();
-		if ($cause === null) return; //*shrug* - issues have arised when external plugins create deaths.
-        if ($cause->getCause() != 1) return; //not killed by entity
-        if (!$cause instanceof EntityDamageByEntityEvent) return; //double check of above check.
+		//if($cause === null) return;
+        //if ($cause->getCause() != EntityDamageEvent::CAUSE_ENTITY_ATTACK or $cause->getCause() != EntityDamageEvent::CAUSE_PROJECTILE) return; //not killed by entity/projectile like arrow.
+        if(!$cause instanceof EntityDamageByEntityEvent) return;
         if ($cause->getDamager() instanceof Player) {
             $killer = $cause->getDamager();
 		}
@@ -342,7 +346,7 @@ class EventListener implements Listener{
 				$killer = $cause->getDamager()->getOwningEntity();
 			}
 		}
-		if ($killer !== null){
+		if ($killer instanceof Player){
             if(isset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())])){
                 //events:
                 $ev = new BountyClaimEvent($this->plugin, $killer, $event->getPlayer(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
@@ -352,9 +356,14 @@ class EventListener implements Listener{
 				    return;
                 }
 
-                if($this->plugin->configd["bounty_claim_success"] !== "") $killer->sendMessage($this->colour(str_replace('{AMOUNT}', $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())],str_replace('{PLAYER}',$event->getPlayer()->getLowerCaseName(),$this->plugin->configd["bounty_claim_success"]))));
+                if($this->plugin->configd["bounty_claim_success"] !== ""){
+                    /** @var string $msg */
+                    $msg = str_replace('{AMOUNT}', (string)$this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())], str_replace('{PLAYER}', $event->getPlayer()->getName(), $this->plugin->configd["bounty_claim_success"]));
+                    $killer->sendMessage($this->colour($msg));
+                }
                 foreach($this->plugin->getServer()->getOnlinePlayers() as $player){
-                    $msg = str_replace("{PLAYER}", $event->getPlayer()->getName(), str_replace("{SENDER}", $killer->getName(), str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())] , $this->plugin->configd["bounty_claim_broadcast"])));
+                    /** @var string $msg */
+                    $msg = str_replace("{PLAYER}", $event->getPlayer()->getName(), str_replace("{SENDER}", $killer->getName(), str_replace("{AMOUNT}", $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())], $this->plugin->configd["bounty_claim_broadcast"])));
                     if($msg !== "") $player->sendMessage($this->colour($msg));
                 }
                 $this->plugin->economy->addMoney($killer->getName(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
