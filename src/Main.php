@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019-2021 JaxkDev
+*   Copyright (C) 2019-present JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -22,8 +22,7 @@
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
-namespace Jack\Bounty;
+namespace JaxkDev\Bounty;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
@@ -44,9 +43,9 @@ class Main extends PluginBase implements Listener{
 
     public EventListener $eventListener;
 	
-	public function onEnable(){
-		$this->economy = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
-		$this->saveResource("help.txt");
+	public function onEnable(): void{
+		//$this->economy = $this->getServer()->getPluginManager()->getPlugin('EconomyAPI');
+		$this->saveResource("help.txt", true);
 		//TODO SQL
 		$this->dataFile = new Config($this->getDataFolder() . "data.yml", Config::YAML, ["version" => 1, "bounty" => []]);
 		$this->data = $this->dataFile->getAll();
@@ -65,7 +64,7 @@ class Main extends PluginBase implements Listener{
 			$this->save(false, true);
 		}
 		$this->eventListener = new EventListener($this);
-		$this->getServer()->getPluginManager()->registerEvents($this->EventListener, $this);
+		$this->getServer()->getPluginManager()->registerEvents($this->eventListener, $this);
     }
     
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
@@ -96,7 +95,7 @@ class Main extends PluginBase implements Listener{
 	}
 
 	public function updateData() : void{
-	    //This is very unlikely to change more then once or twice a year.
+	    //This is very unlikely to change more than once or twice a year.
 
         $this->data["version"] = $this::DATA_VER;
 

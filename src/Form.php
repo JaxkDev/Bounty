@@ -22,16 +22,17 @@
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
+namespace JaxkDev\Bounty;
 
-namespace Jack\Bounty\Events;
+use pocketmine\player\Player;
+use pocketmine\form\Form as FormClass;
+class Form implements FormClass{
 
-use pocketmine\event\Cancellable;
-use pocketmine\event\plugin\PluginEvent;
-use Jack\Bounty\Main;
+    public array $data = [];
 
-abstract class BountyEvent extends PluginEvent implements Cancellable{
-    public function __construct(Main $plugin){
-        parent::__construct($plugin);
+    public function handleResponse(Player $player, $data): void{}
+
+    public function jsonSerialize(): array{
+        return $this->data;
     }
 }

@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019-2021 JaxkDev
+*   Copyright (C) 2019-present JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -22,20 +22,17 @@
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
+namespace JaxkDev\Bounty\Events;
 
-namespace Jack\Bounty;
+use pocketmine\event\Cancellable;
+use pocketmine\event\CancellableTrait;
+use pocketmine\event\plugin\PluginEvent;
+use JaxkDev\Bounty\Main;
 
-use pocketmine\Player;
-use pocketmine\form\Form as FormClass;
+abstract class BountyEvent extends PluginEvent implements Cancellable{
+    use CancellableTrait;
 
-class Form implements FormClass{
-
-    public array $data = [];
-
-    public function handleResponse(Player $player, $data): void{}
-
-    public function jsonSerialize(): array{
-        return $this->data;
+    public function __construct(Main $plugin){
+        parent::__construct($plugin);
     }
 }

@@ -1,13 +1,10 @@
 ---
 name: Bounty
-main: Jack\Bounty\Main
+main: JaxkDev\Bounty\Main
+src-namespace-prefix: JaxkDev\Bounty
 author: JaxkDev
 version: 2.0.0
-api: 3.7.0
-extensions:
-  core: ">=7.4" #aka PHP Version.
-
-depend: [EconomyAPI]
+api: 5.0.0
 
 commands:
   bounty:
@@ -23,13 +20,17 @@ permissions:
       bounty.cmd:
         description: "Allows general usage of /bounty"
         default: true
-      bounty.new:
-        description: "Allows player to add bounties."
-        default: true
-      bounty.rem:
-        description: "Allows player to remove bounties."
-        default: op
+        children:
+          bounty.cmd.new:
+            description: "Allows player to add bounties."
+            default: true
+          bounty.cmd.rem:
+            description: "Allows player to remove bounties."
+            default: op
       bounty.claim:
         description: "Allows player to claim bounties"
         default: true
+      bounty.immune:
+        description: "Allows player to be immune to bounties"
+        default: false
 ...

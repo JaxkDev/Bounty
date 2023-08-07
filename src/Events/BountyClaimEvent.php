@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019-2021 JaxkDev
+*   Copyright (C) 2019-present JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -22,13 +22,11 @@
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
-
-namespace Jack\Bounty\Events;
+namespace JaxkDev\Bounty\Events;
 
 use pocketmine\OfflinePlayer;
-use pocketmine\Player;
-use Jack\Bounty\Main;
+use pocketmine\player\Player;
+use JaxkDev\Bounty\Main;
 
 class BountyClaimEvent extends BountyEvent{
 

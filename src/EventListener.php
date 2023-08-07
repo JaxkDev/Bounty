@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019-2021 JaxkDev
+*   Copyright (C) 2019-present JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -22,24 +22,22 @@
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
+namespace JaxkDev\Bounty;
 
-namespace Jack\Bounty;
-
-use pocketmine\entity\Entity;
-use pocketmine\event\Listener;
-use pocketmine\utils\TextFormat as C;
-use pocketmine\Player;
+use JaxkDev\Bounty\Events\BountyAddEvent;
+use JaxkDev\Bounty\Events\BountyClaimEvent;
+use JaxkDev\Bounty\Events\BountyCreateEvent;
+use JaxkDev\Bounty\Events\BountyRemoveEvent;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
-use Jack\Bounty\Events\BountyClaimEvent;
-use Jack\Bounty\Events\BountyAddEvent;
-use Jack\Bounty\Events\BountyCreateEvent;
-use Jack\Bounty\Events\BountyRemoveEvent;
+use pocketmine\player\Player;
+use pocketmine\utils\TextFormat as TF;
 
 class EventListener implements Listener{
 
@@ -55,44 +53,44 @@ class EventListener implements Listener{
                 return false;
             }
             if(!$sender instanceof Player){
-                $sender->sendMessage(C::RED."Commands can only be run in-game");
+                $sender->sendMessage(TF::RED."Commands can only be run in-game");
                 return true;
             }
             switch($args[0]){
                 case 'list':
                     if(!isset($args[1]) || $args[1] == '1'){
                         if(count($this->plugin->data['bounty']) == 0){
-                            $sender->sendMessage(C::RED."Nobody has a bounty yet.");
+                            $sender->sendMessage(TF::RED."Nobody has a bounty yet.");
                         } else {
                             if(count($this->plugin->data['bounty']) >= 5){
                                 $tmp = array_slice($this->plugin->data['bounty'], 0, 5, true);
                             } else {
                                 $tmp = array_slice($this->plugin->data['bounty'], 0, count($this->plugin->data['bounty']), true);
                             }
-                            $data = C::GREEN.'Page '.C::RED."1".C::GOLD."/".C::RED.ceil(count($this->plugin->data['bounty'])/5)."\n";
+                            $data = TF::GREEN.'Page '.TF::RED."1".TF::GOLD."/".TF::RED.ceil(count($this->plugin->data['bounty'])/5)."\n";
                             foreach($tmp as $user => $price){
-                                $data = $data.C::GOLD.$user." -> ".C::GREEN."$".$price."\n";
+                                $data = $data.TF::GOLD.$user." -> ".TF::GREEN."$".$price."\n";
                             }
                             $sender->sendMessage($data);
                         }
                     } else {
                         if(is_nan(intval($args[1]))){
-                            $sender->sendMessage(C::RED."Not a valid page number.");
+                            $sender->sendMessage(TF::RED."Not a valid page number.");
                         } else {
                             if(count($this->plugin->data['bounty']) == 0){
-                                $sender->sendMessage(C::RED."Nobody has a bounty yet.");
+                                $sender->sendMessage(TF::RED."Nobody has a bounty yet.");
                             } else {
                                 if(intval($args[1]) > ceil(count($this->plugin->data['bounty'])/5)){
-                                    $sender->sendMessage(C::RED."Theres only ".ceil(count($this->plugin->data['bounty'])/5). " Pages.");
+                                    $sender->sendMessage(TF::RED."Theres only ".ceil(count($this->plugin->data['bounty'])/5). " Pages.");
                                 } else {
                                     if(count($this->plugin->data['bounty']) >= intval($args[1])*5){
                                         $tmp = array_slice($this->plugin->data['bounty'], (intval($args[1])*5)-5, (intval($args[1])*5), true);
                                     } else {
                                         $tmp = array_slice($this->plugin->data['bounty'], (intval($args[1])*5)-5, count($this->plugin->data['bounty']), true);
                                     }
-                                    $data = C::GREEN.'Page '.C::RED.$args[1].C::GOLD."/".C::RED.ceil(count($this->plugin->data['bounty'])/5)."\n";
+                                    $data = TF::GREEN.'Page '.TF::RED.$args[1].TF::GOLD."/".TF::RED.ceil(count($this->plugin->data['bounty'])/5)."\n";
                                     foreach($tmp as $user => $price){
-                                        $data = $data.C::GOLD.$user.C::RED." -> ".C::GREEN."$".$price."\n";
+                                        $data = $data.TF::GOLD.$user.TF::RED." -> ".TF::GREEN."$".$price."\n";
                                     }
                                     $sender->sendMessage($data);
                                 }
@@ -101,17 +99,17 @@ class EventListener implements Listener{
                     }
                     return true;
                 case 'credits':
-                    $sender->sendMessage(C::GOLD."=== Credits ===");
-                    $sender->sendMessage(C::GREEN."Developer: ".C::RED."Jackthehack21");
+                    $sender->sendMessage(TF::GOLD."=== Credits ===");
+                    $sender->sendMessage(TF::GREEN."Developer: ".TF::RED."Jackthehack21");
                     return true;
                 case 'help':
-                    $sender->sendMessage(C::GREEN."-- Bounty Help: --");
-                    $sender->sendMessage(C::GOLD."/bounty new <playername> <amount>");
-                    if($sender->hasPermission("bounty.rem")) $sender->sendMessage(C::GOLD."/bounty rem <playername>");
-                    $sender->sendMessage(C::GOLD."/bounty list <page>");
-                    if($this->plugin->configd["leaderboard"] === true) $sender->sendMessage(C::GOLD."/bounty leaderboard");
-                    $sender->sendMessage(C::GOLD."/bounty help");
-                    $sender->sendMessage(C::GOLD."/bounty credits");
+                    $sender->sendMessage(TF::GREEN."-- Bounty Help: --");
+                    $sender->sendMessage(TF::GOLD."/bounty new <playername> <amount>");
+                    if($sender->hasPermission("bounty.rem")) $sender->sendMessage(TF::GOLD."/bounty rem <playername>");
+                    $sender->sendMessage(TF::GOLD."/bounty list <page>");
+                    if($this->plugin->configd["leaderboard"] === true) $sender->sendMessage(TF::GOLD."/bounty leaderboard");
+                    $sender->sendMessage(TF::GOLD."/bounty help");
+                    $sender->sendMessage(TF::GOLD."/bounty credits");
                     break;
                 case "add":
                 case "new":
@@ -121,7 +119,7 @@ class EventListener implements Listener{
                         break;
                     }
                     if(!isset($args[1]) || !isset($args[2])){
-                        $sender->sendMessage(C::RED."Usage: /bounty new <playername> <amount>");
+                        $sender->sendMessage(TF::RED."Usage: /bounty new <playername> <amount>");
                         break;
                     }
                     $noob = $this->plugin->getServer()->getOfflinePlayer($args[1]);
@@ -140,7 +138,7 @@ class EventListener implements Listener{
                     $amount = intval($args[2]);
 
                     if(is_nan($amount)){
-                        $sender->sendMessage(C::RED."Usage: /bounty new <playername> <AMOUNT>");
+                        $sender->sendMessage(TF::RED."Usage: /bounty new <playername> <AMOUNT>");
                         return true;
                     }
 
@@ -159,7 +157,7 @@ class EventListener implements Listener{
                             //Add to existing:
                             //events:
                             $event = new BountyAddEvent($this->plugin, $sender, $noob, $amount);
-                            $this->plugin->getServer()->getPluginManager()->callEvent($event);
+                            $event->call();
                             if($event->isCancelled()){
                                 $msg = $this->plugin->configd["bounty_multiple_cancelled"];
                                 if($msg !== "") $sender->sendMessage($this->colour($msg));
@@ -225,7 +223,7 @@ class EventListener implements Listener{
                         break;
                     }
                     if(!isset($args[1])){
-                        $sender->sendMessage(C::RED."Usage: /bounty rem <playername>");
+                        $sender->sendMessage(TF::RED."Usage: /bounty rem <playername>");
                         break;
                     }
                     if(count($this->plugin->data['bounty']) == 0 || !is_int($this->plugin->data["bounty"][strtolower($args[1])])){
@@ -265,30 +263,30 @@ class EventListener implements Listener{
                             $form = new Form();
                             $form->data = [
                                 "type" => "custom_form",
-                                "title" => C::AQUA.C::BOLD." -- Bounty Leaderboard --",
+                                "title" => TF::AQUA.TF::BOLD." -- Bounty Leaderboard --",
                                 "content" => []
                             ];
-                            $form->data["content"][] = ["type" => "label", "text" => C::GOLD.C::BOLD."Name : Amount"];
+                            $form->data["content"][] = ["type" => "label", "text" => TF::GOLD.TF::BOLD."Name : Amount"];
                             $lb = $this->plugin->data['bounty'];
                             asort($lb);
                             $lb = array_reverse($lb);
                             $count = 1;
                             foreach($lb as $name => $amount){
-                                $form->data["content"][] = ["type" => "label", "text" => C::GREEN.$count.". ".C::AQUA.$name." : $".$amount];
+                                $form->data["content"][] = ["type" => "label", "text" => TF::GREEN.$count.". ".TF::AQUA.$name." : $".$amount];
                                 $count += 1;
                             }
                             $sender->sendForm($form);
                             break;
                         case "text":
                         case "chat":
-                            $prefix = C::BOLD.C::GOLD."-- Bounty Leaderboard --";
-                            $msg = C::AQUA."";
+                            $prefix = TF::BOLD.TF::GOLD."-- Bounty Leaderboard --";
+                            $msg = "";
                             $lb = $this->plugin->data['bounty'];
                             asort($lb);
                             $lb = array_reverse($lb);
                             $count = 1;
                             foreach($lb as $name => $amount){
-                                $msg = $msg.C::GREEN.$count.". ".C::AQUA.$name." : $".$amount."\n";
+                                $msg = $msg.TF::GREEN.$count.". ".TF::AQUA.$name." : $".$amount."\n";
                                 $count += 1;
                             }
                             $sender->sendMessage($prefix);
@@ -299,7 +297,7 @@ class EventListener implements Listener{
                     }
                     return true;
                 default:
-                    $sender->sendMessage(C::RED."Invalid Command, Try /bounty help");
+                    $sender->sendMessage(TF::RED."Invalid Command, Try /bounty help");
                     break;
             }
             return true;
@@ -348,7 +346,7 @@ class EventListener implements Listener{
             if(isset($this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())])){
                 //events:
                 $ev = new BountyClaimEvent($this->plugin, $killer, $event->getPlayer(), $this->plugin->data["bounty"][strtolower($event->getPlayer()->getName())]);
-			    $this->plugin->getServer()->getPluginManager()->callEvent($ev);
+			    $ev->call();
 		        if($ev->isCancelled()){
                     if($this->plugin->configd["bounty_claim_cancelled"] !== "") $killer->sendMessage($this->colour($this->plugin->configd["bounty_claim_cancelled"]));
 				    return;
@@ -368,7 +366,7 @@ class EventListener implements Listener{
 
     public function colour(string $msg): string{
         $colour = array("{BLACK}","{DARK_BLUE}","{DARK_GREEN}","{DARK_AQUA}","{DARK_RED}","{DARK_PURPLE}","{GOLD}","{GRAY}","{DARK_GRAY}","{BLUE}","{GREEN}","{AQUA}","{RED}","{LIGHT_PURPLE}","{YELLOW}","{WHITE}","{OBFUSCATED}","{BOLD}","{STRIKETHROUGH}","{UNDERLINE}","{ITALIC}","{RESET}");
-        $keys = array(C::BLACK, C::DARK_BLUE, C::DARK_GREEN, C::DARK_AQUA, C::DARK_RED, C::DARK_PURPLE, C::GOLD, C::GRAY, C::DARK_GRAY, C::BLUE, C::GREEN, C::AQUA, C::RED, C::LIGHT_PURPLE, C::YELLOW, C::WHITE, C::OBFUSCATED, C::BOLD, C::STRIKETHROUGH, C::UNDERLINE, C::ITALIC, C::RESET);
+        $keys = array(TF::BLACK, TF::DARK_BLUE, TF::DARK_GREEN, TF::DARK_AQUA, TF::DARK_RED, TF::DARK_PURPLE, TF::GOLD, TF::GRAY, TF::DARK_GRAY, TF::BLUE, TF::GREEN, TF::AQUA, TF::RED, TF::LIGHT_PURPLE, TF::YELLOW, TF::WHITE, TF::OBFUSCATED, TF::BOLD, TF::STRIKETHROUGH, TF::UNDERLINE, TF::ITALIC, TF::RESET);
         return str_replace(
             $colour,
             $keys,

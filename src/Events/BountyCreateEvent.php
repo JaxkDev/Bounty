@@ -2,7 +2,7 @@
 
 /*
 *   Bounty Pocketmine Plugin
-*   Copyright (C) 2019-2021 JaxkDev
+*   Copyright (C) 2019-present JaxkDev
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -22,16 +22,14 @@
 *   Email   :: JaxkDev@gmail.com
 */
 
-declare(strict_types=1);
-
-namespace Jack\Bounty\Events;
+namespace JaxkDev\Bounty\Events;
 
 use pocketmine\OfflinePlayer;
-use pocketmine\Player;
-use Jack\Bounty\Main;
+use pocketmine\player\Player;
+use JaxkDev\Bounty\Main;
 
-class BountyAddEvent extends BountyEvent{
-    
+class BountyCreateEvent extends BountyEvent{
+
     private Player $player;
 
     /** @var OfflinePlayer|Player */
@@ -45,16 +43,16 @@ class BountyAddEvent extends BountyEvent{
      * @param OfflinePlayer|Player $wanted_player
      * @param int $amount
      */
-	public function __construct(Main $plugin, Player $player, $wanted_player, int $amount){
+    public function __construct(Main $plugin, Player $player, $wanted_player, int $amount){
         parent::__construct($plugin);
-	    $this->player = $player;
+        $this->player = $player;
         $this->wanted_player = $wanted_player;
         $this->amount = $amount;
     }
 
     public function getPlayer(): Player{
         return $this->player;
-	}
+    }
 
     /**
      * @return OfflinePlayer|Player
